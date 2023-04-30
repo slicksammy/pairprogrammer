@@ -5,7 +5,7 @@ from lxml import etree
 class Xml:
     @classmethod
     def response_prompt(cls):
-        """
+        return """
         Use the following format for your response:
                 
         <RESPONSE>
@@ -21,9 +21,10 @@ class Xml:
     
     @classmethod
     def parse_response_object(cls, response):
-        match = re.search(r'<RESPONSE>.*<\/RESPONSE>', response, re.MULTILINE)
+        match = re.search(r'<RESPONSE>.*<\/RESPONSE>', response, re.DOTALL)
         return match.group(0) if match else None
     
+    @classmethod
     def parse_object_to_dict(cls, object):
         root = etree.fromstring(object)
         arguments = json.loads(root.findtext('ARGUMENTS', '{}'))

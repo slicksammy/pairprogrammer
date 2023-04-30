@@ -1,4 +1,4 @@
-from exceptions import MissingArgumentsException
+from code_generator.exceptions import MissingArgumentsException
 
 class Base:
     @classmethod

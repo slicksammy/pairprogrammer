@@ -1,12 +1,19 @@
-from commands import Base
+from .base import Base
 from django.conf import settings
 import os
-from exceptions import InvalidArgumentException
+from code_generator.exceptions import InvalidArgumentException
+import json
 
 class DeleteLines(Base):
     @classmethod
-    def delete_lines(cls):
+    def required_arguments(cls):
         return ["line_numbers"]
+    
+    def convert_args_from_strings(self, arguments):
+        return {
+            "file_path": arguments["file_path"],
+            "line_numbers": json.loads(arguments["line_numbers"])
+        }
     
     def execute(self, file_path, line_numbers):
         absolute_path = os.path.join(settings.BASE_DIR, file_path)

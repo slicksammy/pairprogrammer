@@ -1,4 +1,4 @@
-from commands import Base
+from .base import Base
 import subprocess
 
 class ViewChanges(Base):

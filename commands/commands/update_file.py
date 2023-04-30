@@ -1,4 +1,4 @@
-from commands import Base
+from .base import Base
 from django.conf import settings
 import os
 
@@ -6,6 +6,13 @@ class UpdateFile(Base):
     @classmethod
     def required_arguments(cls):
         return ["file_path", "content", "line_number"]
+
+    def convert_args_from_strings(self, arguments):
+        return {
+            "file_path": arguments["file_path"],
+            "content": arguments["content"],
+            "line_number": int(arguments["line_number"])
+        }
     
     def execute(self, file_path, content, line_number):
         absolute_path = os.path.join(settings.BASE_DIR, file_path)

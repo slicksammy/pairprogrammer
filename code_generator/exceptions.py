@@ -5,5 +5,5 @@ class MissingArgumentsException(Exception):
 class InvalidArgumentException(Exception):
     pass
 
-class CommandNotFoundException(Exception):
+class InvalidAssistantResponseException(Exception):
     pass
