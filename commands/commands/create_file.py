@@ -3,7 +3,6 @@ import os
 from django.conf import settings
 
 class CreateFile(Base):
-    @classmethod
     def required_arguments(cls):
         return ["file_path"]
     

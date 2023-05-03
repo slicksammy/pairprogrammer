@@ -2,7 +2,6 @@ from .base import Base
 import subprocess
 
 class ViewChanges(Base):
-    @classmethod
     def required_arguments(cls):
         return []
     

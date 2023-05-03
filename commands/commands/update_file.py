@@ -3,7 +3,6 @@ from django.conf import settings
 import os
 
 class UpdateFile(Base):
-    @classmethod
     def required_arguments(cls):
         return ["file_path", "content", "line_number"]
 

@@ -7,3 +7,4 @@ from .update_file import UpdateFile
 from .view_changes import ViewChanges
 from .create_file import CreateFile
 from .create_directory import CreateDirectory
+from .comment import Comment

@@ -15,7 +15,11 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path
+from coder.views import CreateCoderView, AppendOutputView, RunCoderView
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    path('api/v1/coder', CreateCoderView.as_view(), name="create_coder"),
+    path('api/v1/coder/run', RunCoderView.as_view(), name="run_coder"),
+    path('api/v1/coder/append_output', AppendOutputView.as_view(), name="append_output")
 ]
