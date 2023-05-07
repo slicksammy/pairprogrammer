@@ -158,7 +158,7 @@ class Interface:
             COMMAND OUTPUT: {output}
             Continue
             """
-            self.__append_message(content)
+            self.__append_message(content, role="user")
 
             # the second to last message is previously the last message, the system message
             # TODO this should happen on the run step in case user has feedback
@@ -167,7 +167,7 @@ class Interface:
                 self.__next_task()
 
     def append_user_message(self, content):
-        self.__append_message(content)
+        self.__append_message(content, role="user")
     
     def run(self):
         if self.messages[-1].message_content["role"] != "assistant":
@@ -175,10 +175,10 @@ class Interface:
             try:
                 # parse as save the command as a dictionary
                 command = self.__parse_response(content)
-                self.__append_message(command, "assistant")
+                self.__append_message(content, role="assistant", command=command)
             except InvalidAssistantResponseException as e:
                 # if you cannot parse it save the content and tell openAI there was an erro
-                self.__append_message(content, "assistant")
+                self.__append_message(content, role="assistant")
                 self.__mark_previous_message_as_error()
                 self.__append_response_exception(e)
                 return
@@ -190,7 +190,7 @@ class Interface:
 
     def current_command(self):
         if (self.messages[-1].message_content["role"] == "assistant") and not(self.messages[-1].message_content["error"]):
-            return self.messages[-1].message_content["content"]
+            return self.messages[-1].message_content["command"]
 
     def current_task(self):
         return self.coder.tasks[self.coder.current_task_index]
@@ -236,9 +236,9 @@ class Interface:
         else:
             raise NotEnoughTokensException("not enough tokens available")
     
-    def __append_message(self, content, role="user", error=False, task=False):
+    def __append_message(self, content, role="user", command=None, error=False, task=False):
         message_interface = MessagesInterface(Coder, self.coder.id)
-        new_message = message_interface.create_message({ "role": role, "content": content, "error": error, "task": task })
+        new_message = message_interface.create_message({ "role": role, "content": content, "error": error, "task": task, "command": command })
         self.messages.append(new_message)
 
     def __append_task_message(self):
