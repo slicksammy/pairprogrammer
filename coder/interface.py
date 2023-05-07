@@ -33,6 +33,10 @@ class Interface:
             - You must complete the tasks in order
 
         COMMANDS:
+            - "python"
+                arguments:
+                    "command": the python command to run after python manage.py
+                description: will run python manage.py + command in a django app
             - "ls"
                 arguments:
                     "directory_path": the relative path to the directory // if no directory is provided, it will list the current directory

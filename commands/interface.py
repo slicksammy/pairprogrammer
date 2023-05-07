@@ -17,6 +17,7 @@ class Interface:
         "rails": Rails,
         "bundle": Bundle,
         "ls": Ls,
+        "python": Python
     }
 
     @classmethod
