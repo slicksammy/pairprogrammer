@@ -66,10 +66,14 @@ class Interface:
 
     def generate_tasks(self):
         content = textwrap.dedent("""
-        Based on our conversation generate a list of tasks to complete the requirement in the following format:
+        Based on our conversation generate a list of tasks.
+        Respond in the following format:
         TASK: ...
         TASK: ...
-        ...
+
+        Do not include any digits after TASK. Example:
+        TASK: Create a new page
+        TASK: Create database table
         """).strip()
 
         # not including the last two messages because its just to generate tasks

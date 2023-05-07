@@ -16,6 +16,7 @@ class Interface:
         max_tokens = Interface.MAX_TOKENS[model]
         return max_tokens - len(encoding.encode(content))
 
+    # resuce openai.error.RateLimitError
     def run_completion(self, messages, model="gpt-3.5-turbo"):
         completion = openai.ChatCompletion.create(
             model=model,

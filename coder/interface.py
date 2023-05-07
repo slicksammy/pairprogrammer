@@ -172,10 +172,13 @@ class Interface:
     def run(self):
         if self.messages[-1].message_content["role"] != "assistant":
             content = self.__run_completion()
-            self.__append_message(content, "assistant")
             try:
+                # parse as save the command as a dictionary
                 command = self.__parse_response(content)
+                self.__append_message(command, "assistant")
             except InvalidAssistantResponseException as e:
+                # if you cannot parse it save the content and tell openAI there was an erro
+                self.__append_message(content, "assistant")
                 self.__mark_previous_message_as_error()
                 self.__append_response_exception(e)
                 return
@@ -187,7 +190,7 @@ class Interface:
 
     def current_command(self):
         if (self.messages[-1].message_content["role"] == "assistant") and not(self.messages[-1].message_content["error"]):
-            return self.__parse_response(self.messages[-1].message_content["content"])
+            return self.messages[-1].message_content["content"]
 
     def current_task(self):
         return self.coder.tasks[self.coder.current_task_index]
