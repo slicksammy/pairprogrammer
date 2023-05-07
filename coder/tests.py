@@ -10,7 +10,8 @@ class InterfaceTest(TestCase):
         self.coder = Interface.create_coder(
             tasks=["task 1", "task 2"],
             requirements="These are my requirements",
-            context="This is the context"
+            context="This is the context",
+            description="Test description"
         )
 
     def test_creation(self):
@@ -20,6 +21,7 @@ class InterfaceTest(TestCase):
         self.assertEqual(self.coder.current_task_index, 0)
         self.assertEqual(self.coder.files_changed, {})
         self.assertEqual(self.coder.complete, False)
+        self.assertEqual(self.coder.description, "Test description")
 
         messages = MessagesInterface(Coder, self.coder.id).list()
         self.assertEqual(messages[0].message_content["role"], "system")
@@ -29,21 +31,14 @@ class InterfaceTest(TestCase):
         interface = Interface(self.coder.id)
         self.assertEqual(interface.current_command(), None)
         # with an invalid response
-        with patch.object(Interface, '_Interface__run_completion', return_value="Test") as mock_method:
+        with patch.object(Interface, '_Interface__run_completion', return_value="{}") as mock_method:
             interface.run()
         messages = MessagesInterface(Coder, self.coder.id).list()
         self.assertEqual(len(messages), 4)
-        self.assertEqual(messages[-2].message_content, { "content": "Test", "role": "assistant", "error": True, "task": False })
+        self.assertEqual(messages[-2].message_content, { "content": "{}", "role": "assistant", "error": True, "task": False })
         self.assertEqual(messages[-1].message_content, { "content": "Could not parse your response due to:\nCould not find the command\nPlease try again following the response format", "role": "user", "error": True, "task": False })
         self.assertEqual(interface.current_command(), None)
-        valid_response = """
-        COMMAND: create_file
-        ARGUMENTS: { "file_path": "test.py" }
-        EXPLANATION: testing
-        SUMMARY: running tests
-        TASK: task 1
-        COMPLETE: false
-        """
+        valid_response = "{\"command\":\"create_file\",\"arguments\":{\"file_path\":\"test.py\"},\"explanation\":\"testing\",\"summary\":\"running tests\",\"task\":\"task 1\",\"complete\":false}" 
         with patch.object(Interface, '_Interface__run_completion', return_value=valid_response) as mock_method:
             interface.run()
         messages = MessagesInterface(Coder, self.coder.id).list()
@@ -60,14 +55,7 @@ class InterfaceTest(TestCase):
         messages = MessagesInterface(Coder, self.coder.id).list()
         self.assertEqual(len(messages), 6)
         self.assertEqual(self.coder.current_task_index, 0)
-        task_complete_response = """
-        COMMAND: create_file
-        ARGUMENTS: { "file_path": "test.py" }
-        EXPLANATION: testing
-        SUMMARY: running tests
-        TASK: task 1
-        COMPLETE: true
-        """
+        task_complete_response = "{\"command\":\"create_file\",\"arguments\":{\"file_path\":\"test.py\"},\"explanation\":\"testing\",\"summary\":\"running tests\",\"task\":\"task 1\",\"complete\":true}" 
         with patch.object(Interface, '_Interface__run_completion', return_value=task_complete_response) as mock_method:
             interface.run()
         interface.append_output("command executed successfully")
@@ -75,14 +63,7 @@ class InterfaceTest(TestCase):
         self.assertEqual(len(messages), 9)
         self.coder.refresh_from_db()
         self.assertEqual(self.coder.current_task_index, 1)
-        invalid_argument_response = """
-        COMMAND: create_file
-        ARGUMENTS: { "something": "test.py" }
-        EXPLANATION: testing
-        SUMMARY: running tests
-        TASK: task 1
-        COMPLETE: true
-        """
+        invalid_argument_response = "{\"command\":\"create_file\",\"arguments\":{\"invalid\":\"test.py\"},\"explanation\":\"testing\",\"summary\":\"running tests\",\"task\":\"task 1\",\"complete\":false}" 
         with patch.object(Interface, '_Interface__run_completion', return_value=invalid_argument_response) as mock_method:
             interface.run()
         messages = MessagesInterface(Coder, self.coder.id).list()

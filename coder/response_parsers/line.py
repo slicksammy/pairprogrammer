@@ -40,6 +40,7 @@ class Line:
                 #     arguments[key.strip()] = value.strip().strip('"').strip("'").replace("\\n", "\n") # because linebreaks are separators, the api will return \\n indicating it to not be a line break
                 #     i += 1
                 try:
+                    breakpoint()
                     parsed['arguments'] = json.loads(lines[i].split('ARGUMENTS: ')[1].strip())
                 except json.JSONDecodeError:
                     raise InvalidArgumentsException("could not parse ARGUMENTS json")

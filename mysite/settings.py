@@ -41,7 +41,7 @@ INSTALLED_APPS = [
     'app_messages',
     'coder',
     'commands',
-    'api'
+    'planner'
 ]
 
 MIDDLEWARE = [

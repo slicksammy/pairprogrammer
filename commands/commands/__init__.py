@@ -8,3 +8,7 @@ from .view_changes import ViewChanges
 from .create_file import CreateFile
 from .create_directory import CreateDirectory
 from .comment import Comment
+from .write_file import WriteFile
+from .rails import Rails
+from .bundle import Bundle
+from .ls import Ls

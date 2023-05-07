@@ -1,21 +1,23 @@
 from coder.response_parsers.xml import Xml
 from coder.response_parsers.line import Line
+from coder.response_parsers.json import Json
 from coder.exceptions import InvalidAssistantResponseException, NotEnoughTokensException
 from commands.interface import Interface as CommandInterface
 from completions.interface import Interface as CompletionsInterface
-import pdb
-import traceback
 from app_messages.interface import Interface as MessagesInterface
 from .models import Coder
 import textwrap
+from planner.interface import Interface as PlannerInterface
+from json.decoder import JSONDecodeError
 # TODO: move to environment variable - this is my personal key
 
 class Interface:
     @classmethod
     def base_prompt(cls):
-        return """
-        You are given a set of requirements and will be asked to perform a series of tasks to complete the requirements. You can see the tasks below but I will present them to you one at a time to complete.
-        You can only respond with the commands listed below. If you need clarification, use the "ask_question" commmand. Once a task is completed, use the "task_completed" command to move on to the next task.
+        return textwrap.dedent("""
+        You are a software engineer and need to build a feature detailed in "REQUIREMENTS". You have a series of tasks to detailed in "TASKS". You have more information about the app in "CONTEXT".
+
+        Your job is to complete all of the tasks by running commands detailed in "COMMANDS". There are "RULES" about how you can run commands. The way you should respond is detailed in "RESPONSE FORMAT".
 
         REQUIREMENTS:
         <<REQUIREMENTS>>
@@ -26,25 +28,27 @@ class Interface:
         TASKS:
         <<TASKS>>
 
-        BEST PRACTICES:
-            - Ask the user before adding any dependencies
-            - requires should be at the top of the file
-            - Do not update README.md
-            - Tests go in spec/
-            - When creating new files, always confirm the file path with the user
-
         RULES:
             - Respond with ONLY 1 command at a time
             - You must complete the tasks in order
 
         COMMANDS:
+            - "ls"
+                arguments:
+                    "directory_path": the relative path to the directory // if no directory is provided, it will list the current directory
+                description: will list the contents of a directory
+            - "bundle"
+                arguments:
+                    "command": the bundler command to run // everything after "bundle"
+                description: will run bundle + command
+            - "rails"
+                arguments:
+                    "command": the rails command to run // everything after "rails"
+                description: will run rails + command
             - "create_directory"
                 arguments:
                     "directory_path": the relative path to the directory
                 description: creates a directory
-            - "view_changes"
-                arguments: {}
-                description: shows the changes you've made so far
             - "delete_lines"
                 arguments:
                     "file_path": the relative path to the file
@@ -57,12 +61,11 @@ class Interface:
                 arguments: 
                     "file_path": the relative path to the file
                 description: you can read any file from this project to get information
-            - "update_file"
+            - "write_file"
                 arguments:
                     "file_path": the relative path to the file
                     "content": the content to write to the file
-                    "line_number": which line in the file to insert the content
-                description: will insert content into an existing file starting at the given line number. It will not overrite any existing content. To remove content use the delete_lines command.
+                description: will replace existing file content with "content". Make sure to first read the file and ammend it with the new content.
             - "create_file"
                 arguments:
                     "file_path": the relative path to the file
@@ -89,26 +92,38 @@ class Interface:
             - You may only respond commands
             - You may only respond with one command at a time
             - You must include the arguments
-            
+                
             <<RESPONSE_PROMPT>>
-        """
+        """).strip()
 
     @classmethod
     def build_prompt(cls, context, requirements, tasks, response_prompt):
         return cls.base_prompt().replace("<<CONTEXT>>", context).replace("<<REQUIREMENTS>>", requirements).replace("<<RESPONSE_PROMPT", response_prompt).replace("<<TASKS>>", "\n".join(tasks))
 
     @classmethod
-    def create_coder(cls, tasks, requirements, context):
+    def create_coder_from_planner(cls, planner_id):
+        planner_inteface = PlannerInterface(planner_id)
+        planner = planner_inteface.planner
+        tasks = planner.tasks
+        requirements = planner.requirements
+        context = planner.context
+        description = planner.description
+        return cls.create_coder(tasks, requirements, context, description)
+        
+
+    @classmethod
+    def create_coder(cls, tasks, requirements, context, description):
         coder = Coder.objects.create(
             tasks=tasks,
             requirements=requirements,
             context=context,
             current_task_index=0,
-            complete=False
+            complete=False,
+            description=description
         )
 
         # create the first system message
-        system_message_prompt = cls.build_prompt(context, requirements, tasks, Line.response_prompt())
+        system_message_prompt = cls.build_prompt(context, requirements, tasks, Json.response_prompt())
         MessagesInterface(Coder, coder.id).create_message(
             {
                 "role": "system",
@@ -126,7 +141,7 @@ class Interface:
 
     @classmethod
     def list(cls):
-        return list(Coder.objects.order_by("created_at").all())
+        return list(map(lambda coder: { "id" : coder.id, "tasks": coder.tasks, "description": coder.description }, list(Coder.objects.order_by("created_at").all())))
 
     def __init__(self, coder_id):
         self.coder = Coder.objects.get(id=coder_id)
@@ -142,9 +157,13 @@ class Interface:
             self.__append_message(content)
 
             # the second to last message is previously the last message, the system message
+            # TODO this should happen on the run step in case user has feedback
             complete = self.__parse_response(self.messages[-2].message_content["content"])["complete"]
             if complete:
                 self.__next_task()
+
+    def append_user_message(self, content):
+        self.__append_message(content)
     
     def run(self):
         if self.messages[-1].message_content["role"] != "assistant":
@@ -206,8 +225,7 @@ class Interface:
         formatted_messages = [{ "content": message.message_content["content"], "role": message.message_content["role"] } for message in self.messages]
         completions_interface = CompletionsInterface()
         if completions_interface.available_completion_tokens(formatted_messages, model) > 200:
-            content = CompletionsInterface().run_completion(formatted_messages, model)
-            return content
+            return CompletionsInterface().run_completion(formatted_messages, model)
         else:
             raise NotEnoughTokensException("not enough tokens available")
     
@@ -236,11 +254,15 @@ class Interface:
             return True
     
     def __response_parser_class(self):
-        return Line
+        return Json
         
     def __parse_response(self, content):
-        object = self.__response_parser_class().parse_response_object(content)
+        try:
+            object = self.__response_parser_class().parse_response_object(content)
+        except JSONDecodeError: # TODO: this shold be parser specfic
+            raise InvalidAssistantResponseException("Your provided an invalid JSON response")
         
+
         if object is None:
             raise InvalidAssistantResponseException("Your response is invalid. Please follow the detailed response format")
 
