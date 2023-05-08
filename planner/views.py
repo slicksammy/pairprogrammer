@@ -10,8 +10,7 @@ class CreatePlannerView(APIView):
         data = request.data
         requirements = data["requirements"]
         context = data["context"]
-        description = data["description"]
-        planner = Interface.create_planner(requirements, context, description)
+        planner = Interface.create_planner(requirements, context)
         return Response({'id': planner.id }, status=status.HTTP_200_OK)
     
 class RunPlannerView(APIView):

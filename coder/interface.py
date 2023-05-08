@@ -9,17 +9,24 @@ from .models import Coder
 import textwrap
 from planner.interface import Interface as PlannerInterface
 from json.decoder import JSONDecodeError
+import os
 # TODO: move to environment variable - this is my personal key
 
 class Interface:
     @classmethod
     def base_prompt(cls):
-        with open("./prompts/v2.txt", "r") as file:
+        script_dir = os.path.dirname(os.path.abspath(__file__))
+
+        # Construct the path to the v2.txt file relative to the script directory
+        text_path = os.path.join(script_dir, 'prompts', 'v2.txt')
+
+        # Open and read the v2.txt file
+        with open(text_path, 'r') as file:
             return file.read()
 
     @classmethod
     def build_prompt(cls, context, requirements, tasks, response_prompt):
-        return cls.base_prompt().replace("<<CONTEXT>>", context).replace("<<REQUIREMENTS>>", requirements).replace("<<RESPONSE_PROMPT", response_prompt).replace("<<TASKS>>", "\n".join(tasks))
+        return cls.base_prompt().replace("<<CONTEXT>>", context).replace("<<REQUIREMENTS>>", requirements).replace("<<RESPONSE_PROMPT>>", response_prompt).replace("<<TASKS>>", "\n".join(tasks))
 
     @classmethod
     def create_coder_from_planner(cls, planner_id):
@@ -28,19 +35,17 @@ class Interface:
         tasks = planner.tasks
         requirements = planner.requirements
         context = planner.context
-        description = planner.description
-        return cls.create_coder(tasks, requirements, context, description)
+        return cls.create_coder(tasks, requirements, context)
         
 
     @classmethod
-    def create_coder(cls, tasks, requirements, context, description):
+    def create_coder(cls, tasks, requirements, context):
         coder = Coder.objects.create(
             tasks=tasks,
             requirements=requirements,
             context=context,
             current_task_index=0,
             complete=False,
-            description=description
         )
 
         # create the first system message
@@ -62,7 +67,7 @@ class Interface:
 
     @classmethod
     def list(cls):
-        return list(map(lambda coder: { "id" : coder.id, "tasks": coder.tasks, "description": coder.description }, list(Coder.objects.order_by("created_at").all())))
+        return list(map(lambda coder: { "id" : coder.id, "tasks": coder.tasks, "requirements": coder.requirements }, list(Coder.objects.order_by("created_at").all())))
 
     def __init__(self, coder_id):
         self.coder = Coder.objects.get(id=coder_id)
@@ -186,10 +191,10 @@ class Interface:
         except JSONDecodeError: # TODO: this shold be parser specfic
             raise InvalidAssistantResponseException("Your provided an invalid JSON response")
         
-
         if object is None:
             raise InvalidAssistantResponseException("Your response is invalid. Please follow the detailed response format")
 
+        # JSON descoder exception here
         parsed = self.__response_parser_class().parse_object_to_dict(object)
 
         if parsed.get("command") is None:

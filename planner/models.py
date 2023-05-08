@@ -5,7 +5,6 @@ import uuid
 class Planner(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     
-    description = models.CharField(null=False, max_length=2000)
     requirements = models.CharField(null=False, max_length=2000)
     context = models.CharField(null=False, max_length=2000)
     tasks = models.JSONField(null=False)

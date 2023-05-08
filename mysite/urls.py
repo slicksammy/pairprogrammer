@@ -15,7 +15,7 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path
-from coder.views import CreateCoderView, AppendOutputView, RunCoderView, ListCoderView, CreateUserMessageView
+from coder.views import CreateCoderView, AppendOutputView, RunCoderView, ListCoderView, CreateUserMessageView, AppendExceptionView
 from planner.views import CreatePlannerView, RunPlannerView, RespondPlannerView, ListPlannerView, GenerateTaskView, ListTasksView, GetMessagesView
 
 urlpatterns = [
@@ -25,6 +25,7 @@ urlpatterns = [
     path('api/v1/coder/append_output', AppendOutputView.as_view(), name="append_output"),
     path('api/v1/coder/user_message', CreateUserMessageView.as_view(), name="user_message"),
     path('api/v1/coder/list', ListCoderView.as_view(), name="append_output"),
+    path('api/v1/coder/append_exception', AppendExceptionView.as_view(), name="append_exception"),
     path('api/v1/planner', CreatePlannerView.as_view(), name="create_planner"),
     path('api/v1/planner/run', RunPlannerView.as_view(), name="run_planner"),
     path('api/v1/planner/respond', RespondPlannerView.as_view(), name="respond_planner"),

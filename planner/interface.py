@@ -9,21 +9,26 @@ class Interface:
     @classmethod
     def base_prompt(cls):
         return textwrap.dedent("""
-        You are a programming assistant and your job is to help the user think through their requirements for a feature they are building in their application.
+        As a Programming Assistant, guide the user through a series of questions to help them define feature requirements for their application.
 
-        REQUIREMENTS:
+        Feature requirements:
         <<REQUIREMENTS>>
         
-        Here is more information about their application:
+        Additional context for the application:
         <<CONTEXT>>
+
+        You should:
+        - Gain an understanding of the feature the user is trying to build
+        - Gain a better undersatnding of the user's application, including how code is structured, what dependencies are used, etc
+        - Ask questions sepcific to the feature requirements
+        - Keep your responses high level and do not offer any code snippets, the point of this is to help the user think through the problem
         """).strip()
     
     @classmethod
-    def create_planner(cls, requirements, context, description):
+    def create_planner(cls, requirements, context):
         planner = Planner.objects.create(
             requirements=requirements,
             context=context,
-            description=description,
             tasks=[]
         )
         system_message_prompt = cls.build_prompt(context, requirements)
@@ -41,7 +46,7 @@ class Interface:
     
     @classmethod
     def list(cls):
-        return list(map(lambda planner: { "id" : planner.id, "requirements": planner.requirements, "description": planner.description, "tasks": planner.tasks }, list(Planner.objects.order_by("created_at").all())))
+        return list(map(lambda planner: { "id" : planner.id, "requirements": planner.requirements, "tasks": planner.tasks }, list(Planner.objects.order_by("created_at").all())))
     
     def __init__(self, planner_id):
         self.planner = Planner.objects.get(id=planner_id)
@@ -66,14 +71,22 @@ class Interface:
 
     def generate_tasks(self):
         content = textwrap.dedent("""
-        Based on our conversation generate a list of tasks.
+        Based on our conversation generate an atomic list of tasks that will allow me to meet my feature requirements.
         Respond in the following format:
         TASK: ...
         TASK: ...
 
-        Do not include any digits after TASK. Example:
-        TASK: Create a new page
-        TASK: Create database table
+        Example 1:
+        TASK: Create file index.html
+        TAKS: Add 3 sections to index.html
+        TASK: Add css to application.css
+        TASK: Add relevant classes to index.html
+
+        Example 2:
+        TASK: Create file ruby.rb
+        TASK: Define a class MyClass
+        TASK: Implement instance method scrape that makes http request to website
+        TASK: Add dependency to Gemfile
         """).strip()
 
         # not including the last two messages because its just to generate tasks
