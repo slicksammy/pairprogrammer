@@ -60,5 +60,5 @@ class AppendExceptionView(APIView):
         if not coder_id or not exception_data or not exception_message:
             return Response(status=status.HTTP_400_BAD_REQUEST)
         interface = Interface(coder_id)
-        success = interface.append_exception(exception_data, exception_message)
-        return Response({'success': success}, status=status.HTTP_200_OK if success else status.HTTP_500_INTERNAL_SERVER_ERROR)
+        interface.append_exception(exception_data, exception_message)
+        return Response(status=status.HTTP_200_OK)

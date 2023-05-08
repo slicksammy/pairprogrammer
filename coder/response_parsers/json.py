@@ -25,17 +25,13 @@ class Json:
             "complete": false
         }
 
-        Escape all quotes with a backslash, for example:
-        {
-            "command": "write_file",
-            "arguments": {
-                "content": "\"\"\" some content \"\"\""
-            },
-            "explanation": "I need to create a new file",
-            "summary": "creating a file",
-            "task": "the task you are working on",
-            "complete": false
-        }
+        Escape the following characters with a single backslash:
+            - Double quote (`"`)
+            - Backslash (`\`)
+            - Controler characters
+                - Tab `\t`
+                - Newline `\n`
+                - Carriage return `\r`
         """
     
     @classmethod
