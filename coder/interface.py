@@ -186,16 +186,16 @@ class Interface:
         return Json
         
     def __parse_response(self, content):
-        try:
-            object = self.__response_parser_class().parse_response_object(content)
-        except JSONDecodeError: # TODO: this shold be parser specfic
-            raise InvalidAssistantResponseException("Your provided an invalid JSON response")
-        
+        object = self.__response_parser_class().parse_response_object(content)
+            
         if object is None:
             raise InvalidAssistantResponseException("Your response is invalid. Please follow the detailed response format")
 
-        # JSON descoder exception here
-        parsed = self.__response_parser_class().parse_object_to_dict(object)
+        try:
+            parsed = self.__response_parser_class().parse_object_to_dict(object)
+        except JSONDecodeError:
+            breakpoint()
+            raise InvalidAssistantResponseException("Your provided an invalid JSON response")
 
         if parsed.get("command") is None:
             raise InvalidAssistantResponseException("Could not find the command")

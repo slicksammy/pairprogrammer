@@ -53,7 +53,6 @@ class CreateUserMessageView(APIView):
 
 class AppendExceptionView(APIView):    
     def post(self, request):
-        breakpoint()
         data = request.data
         coder_id = data.get('id')
         exception_data = data.get('exception')

@@ -24,6 +24,18 @@ class Json:
             "task": "the task you are working on",
             "complete": false
         }
+
+        Escape all quotes with a backslash, for example:
+        {
+            "command": "write_file",
+            "arguments": {
+                "content": "\"\"\" some content \"\"\""
+            },
+            "explanation": "I need to create a new file",
+            "summary": "creating a file",
+            "task": "the task you are working on",
+            "complete": false
+        }
         """
     
     @classmethod
