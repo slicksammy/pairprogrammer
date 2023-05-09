@@ -31,7 +31,7 @@ class DeleteLines(Base):
         if len(self.arguments.get("line_numbers", 0)) < 1:
             validations["line_numbers"] = ["must include at least one line number"]
 
-        if is_relative(self.arguments["file_path"]):
-            validations["file_path"] = ["cannot be relative and may not start with .."]
+        if not is_relative(self.arguments["file_path"]):
+            validations["file_path"] = ["must be relative and may not start with .."]
         
         return validations

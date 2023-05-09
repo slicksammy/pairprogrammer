@@ -8,9 +8,9 @@ class Mv(Base):
     
     def custom_validations(self):
         validations = {}
-        if is_relative(self.arguments["source"]):
-            validations["source"] = ["cannot be relative and may not start with .."]
-        if is_relative(self.arguments["destination"]):
-            validations["destination"] = ["cannot be relative and may not start with .."]
+        if not is_relative(self.arguments["source"]):
+            validations["source"] = ["must be relative and may not start with .."]
+        if not is_relative(self.arguments["destination"]):
+            validations["destination"] = ["must be relative and may not start with .."]
         
         return validations

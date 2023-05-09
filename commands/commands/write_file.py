@@ -14,7 +14,7 @@ class WriteFile(Base):
         }
     
     def custom_validations(self):
-        if is_relative(self.arguments["file_path"]):
-            return { "file_path": ["cannot be relative and may not start with .."] }
+        if not is_relative(self.arguments["file_path"]):
+            return { "file_path": ["must be relative and may not start with .."] }
         else:
             return {}

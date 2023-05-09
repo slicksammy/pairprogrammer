@@ -7,7 +7,7 @@ class Ls(Base):
         return []
     
     def custom_validations(self):
-        if self.arguments.get("directory_path") and is_relative(self.arguments["directory_path"]):
-            return { "directory_path": ["cannot be relative and may not start with .."] }
+        if self.arguments.get("directory_path") and not is_relative(self.arguments["directory_path"]):
+            return { "directory_path": ["must be relative and may not start with .."] }
         else:
             return {}

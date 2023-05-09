@@ -12,7 +12,7 @@ class CreateDirectory(Base):
         os.mkdirs(absolute_path)
 
     def custom_validations(self):
-        if is_relative(self.arguments["directory_path"]):
-            return { "directory_path": ["cannot be relative and may not start with .."] }
+        if not is_relative(self.arguments["directory_path"]):
+            return { "directory_path": ["must be relative and may not start with .."] }
         else:
             return {}
