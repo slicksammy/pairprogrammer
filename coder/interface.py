@@ -165,7 +165,7 @@ class Interface:
     def __run_completion(self, model="gpt-4"):
         formatted_messages = [{ "content": message.message_content["content"], "role": message.message_content["role"] } for message in self.messages]
         if CompletionsInterface.available_completion_tokens(formatted_messages, model) > 200:
-            completion = CompletionsInterface.run_completion(formatted_messages, model)
+            completion = CompletionsInterface.run_completion(Coder, self.coder.id, formatted_messages, model)
             return completion.content
         else:
             raise NotEnoughTokensException("not enough tokens available")
