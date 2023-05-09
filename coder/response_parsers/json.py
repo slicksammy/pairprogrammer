@@ -1,4 +1,5 @@
 import json
+from json.decoder import JSONDecodeError
 
 class Json:
     @classmethod
@@ -26,7 +27,7 @@ class Json:
         }
 
         Escape the following characters with a single backslash:
-            - Double quote (`"`) eg \"
+            - Double quote (`"`) eg `\\"`
             - Backslash (`\`) eg \\
             - Controler characters
                 - Tab `\t` eg \\t
@@ -35,11 +36,23 @@ class Json:
         """
     
     @classmethod
-    def parse_response_object(cls, response):
-        start_index = response.index("{")  # find the first occurrence of the opening brace
-        end_index = response.rindex("}")  # find the last occurrence of the closing brace
-        return response[start_index:end_index+1]
+    def get_response(cls, response):
+        try:
+            start_index = response.index("{")  # find the first occurrence of the opening brace
+            end_index = response.rindex("}")  # find the last occurrence of the closing brace
+            return response[start_index:end_index+1]
+        except ValueError:
+            return None
+        
+    @classmethod
+    def fix_known_issues(cls, response):
+        # fix double quote
+        return response.replace('\\"', '\"')
     
     @classmethod
     def parse_object_to_dict(cls, object):
-        return json.loads(object)
+        try:
+            return json.loads(object)
+        except JSONDecodeError:
+            breakpoint()
+            return None

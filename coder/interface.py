@@ -8,7 +8,6 @@ from app_messages.interface import Interface as MessagesInterface
 from .models import Coder
 import textwrap
 from planner.interface import Interface as PlannerInterface
-from json.decoder import JSONDecodeError
 import os
 # TODO: move to environment variable - this is my personal key
 
@@ -163,11 +162,11 @@ class Interface:
         message.save()
 
     # TODO configure model on coder instance
-    def __run_completion(self, model="gpt-3.5-turbo"):
+    def __run_completion(self, model="gpt-4"):
         formatted_messages = [{ "content": message.message_content["content"], "role": message.message_content["role"] } for message in self.messages]
-        completions_interface = CompletionsInterface()
-        if completions_interface.available_completion_tokens(formatted_messages, model) > 200:
-            return CompletionsInterface().run_completion(formatted_messages, model)
+        if CompletionsInterface.available_completion_tokens(formatted_messages, model) > 200:
+            completion = CompletionsInterface.run_completion(formatted_messages, model)
+            return completion.content
         else:
             raise NotEnoughTokensException("not enough tokens available")
     
@@ -199,24 +198,13 @@ class Interface:
         return Json
         
     def __parse_response(self, content, retry=False):
-        object = self.__response_parser_class().parse_response_object(content)
-            
-        if object is None:
+        content = self.__response_parser_class().get_response(content)
+        if content is None:
             raise InvalidAssistantResponseException("Your response is invalid. Please follow the detailed response format")
-
-        try:
-            parsed = self.__response_parser_class().parse_object_to_dict(object)
-        except JSONDecodeError:
-            if not retry:
-                content = textwrap.dedent(f"""
-                fix this json and return only JSON, no backticks
-                {object}
-                """)
-                messages = [{ "role": "user", "content": content }]
-                content = CompletionsInterface().run_completion(messages, model="gpt-3.5-turbo")
-                self.__parse_response(content, retry=True)
-            else:
-                raise InvalidAssistantResponseException("Your provided an invalid JSON response")
+        
+        parsed = self.__response_parser_class().parse_object_to_dict(content)
+        if parsed is None:
+            raise InvalidAssistantResponseException("You provided an invalid JSON response")
 
         if parsed.get("command") is None:
             raise InvalidAssistantResponseException("Could not find the command")
