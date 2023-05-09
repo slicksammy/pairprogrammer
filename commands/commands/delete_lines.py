@@ -3,6 +3,7 @@ from django.conf import settings
 import os
 from commands.exceptions import InvalidArgumentException
 import json
+from commands.helpers import is_relative
 
 class DeleteLines(Base):
     def required_arguments(cls):
@@ -26,8 +27,11 @@ class DeleteLines(Base):
             file.write("".join(lines))
 
     def custom_validations(self):
-        # missing validation will catch this
+        validations = {}
         if len(self.arguments.get("line_numbers", 0)) < 1:
-            return { "line_numbers": ["must include at least one line number"] }
-        else:
-            return {}
+            validations["line_numbers"] = ["must include at least one line number"]
+
+        if is_relative(self.arguments["file_path"]):
+            validations["file_path"] = ["cannot be relative and may not start with .."]
+        
+        return validations

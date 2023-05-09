@@ -17,8 +17,13 @@ class Interface:
         "rails": Rails,
         "bundle": Bundle,
         "ls": Ls,
-        "python": Python
+        "python": Python,
+        "mv": Mv
     }
+
+    @classmethod
+    def valid_command(cls, command):
+        return command in cls.COMMANDS
 
     @classmethod
     def validate_arguments(cls, command, arguments):

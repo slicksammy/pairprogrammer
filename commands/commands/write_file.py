@@ -1,6 +1,7 @@
 from .base import Base
 from django.conf import settings
 import os
+from commands.helpers import is_relative
 
 class WriteFile(Base):
     def required_arguments(cls):
@@ -12,18 +13,8 @@ class WriteFile(Base):
             "content": arguments["content"],
         }
     
-    def execute(self, file_path, content, line_number):
-        absolute_path = os.path.join(settings.BASE_DIR, file_path)
-        # TODO return which lines were inserted
-        if line_number == -1:
-            with open(absolute_path, "a") as file:
-                file.write(content)
-                file.write("\n")
+    def custom_validations(self):
+        if is_relative(self.arguments["file_path"]):
+            return { "file_path": ["cannot be relative and may not start with .."] }
         else:
-            with open(absolute_path, "r") as file:
-                lines = file.readlines()
-            lines.insert(line_number, content)
-            
-            with open(absolute_path, "w") as file:
-                for line in lines:
-                    file.write(line)
+            return {}

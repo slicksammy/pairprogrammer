@@ -105,6 +105,11 @@ class Interface:
                 self.__append_response_exception(e)
                 return
             
+
+            valid_command = CommandInterface.validate_arguments(command["command"])
+            if not valid_command:
+                self.__mark_previous_message_as_error()
+                self.__append_invalid_command(command["command"])
             argument_validations = CommandInterface.validate_arguments(command["command"], command["arguments"])
             if len(argument_validations) > 0:
                 self.__mark_previous_message_as_error()
@@ -132,6 +137,13 @@ class Interface:
         Could not parse your response due to:
         {e.args[0]}
         Please try again following the response format
+        """).strip()
+        
+        self.__append_message(content, role="user", error=True)
+
+    def __append_invalid_command(self, command):
+        content = textwrap.dedent(f"""
+        {command} is not a valid command
         """).strip()
         
         self.__append_message(content, role="user", error=True)
@@ -194,7 +206,6 @@ class Interface:
         try:
             parsed = self.__response_parser_class().parse_object_to_dict(object)
         except JSONDecodeError:
-            breakpoint()
             raise InvalidAssistantResponseException("Your provided an invalid JSON response")
 
         if parsed.get("command") is None:
