@@ -106,7 +106,7 @@ class Interface:
                 return
             
 
-            valid_command = CommandInterface.validate_arguments(command["command"])
+            valid_command = CommandInterface.valid_command(command["command"])
             if not valid_command:
                 self.__mark_previous_message_as_error()
                 self.__append_invalid_command(command["command"])
