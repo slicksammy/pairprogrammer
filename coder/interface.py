@@ -84,7 +84,7 @@ class Interface:
 
             # the second to last message is previously the last message, the system message
             # TODO this should happen on the run step in case user has feedback
-            complete = self.__parse_response(self.messages[-2].message_content["content"])["complete"]
+            complete = self.messages[-2].message_content["command"]["complete"]
             if complete:
                 self.__next_task()
 
@@ -162,7 +162,8 @@ class Interface:
         message.message_content["error"] = True
         message.save()
 
-    def __run_completion(self, model="gpt-4"):
+    # TODO configure model on coder instance
+    def __run_completion(self, model="gpt-3.5-turbo"):
         formatted_messages = [{ "content": message.message_content["content"], "role": message.message_content["role"] } for message in self.messages]
         completions_interface = CompletionsInterface()
         if completions_interface.available_completion_tokens(formatted_messages, model) > 200:
@@ -197,7 +198,7 @@ class Interface:
     def __response_parser_class(self):
         return Json
         
-    def __parse_response(self, content):
+    def __parse_response(self, content, retry=False):
         object = self.__response_parser_class().parse_response_object(content)
             
         if object is None:
@@ -206,7 +207,16 @@ class Interface:
         try:
             parsed = self.__response_parser_class().parse_object_to_dict(object)
         except JSONDecodeError:
-            raise InvalidAssistantResponseException("Your provided an invalid JSON response")
+            if not retry:
+                content = textwrap.dedent(f"""
+                fix this json and return only JSON, no backticks
+                {object}
+                """)
+                messages = [{ "role": "user", "content": content }]
+                content = CompletionsInterface().run_completion(messages, model="gpt-3.5-turbo")
+                self.__parse_response(content, retry=True)
+            else:
+                raise InvalidAssistantResponseException("Your provided an invalid JSON response")
 
         if parsed.get("command") is None:
             raise InvalidAssistantResponseException("Could not find the command")

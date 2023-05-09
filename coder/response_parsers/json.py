@@ -26,17 +26,19 @@ class Json:
         }
 
         Escape the following characters with a single backslash:
-            - Double quote (`"`)
-            - Backslash (`\`)
+            - Double quote (`"`) eg \"
+            - Backslash (`\`) eg \\
             - Controler characters
-                - Tab `\t`
-                - Newline `\n`
-                - Carriage return `\r`
+                - Tab `\t` eg \\t
+                - Newline `\n` eg \\n
+                - Carriage return `\r` eg \\n
         """
     
     @classmethod
     def parse_response_object(cls, response):
-        return response
+        start_index = response.index("{")  # find the first occurrence of the opening brace
+        end_index = response.rindex("}")  # find the last occurrence of the closing brace
+        return response[start_index:end_index+1]
     
     @classmethod
     def parse_object_to_dict(cls, object):
