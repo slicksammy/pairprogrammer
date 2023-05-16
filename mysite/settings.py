@@ -42,7 +42,8 @@ INSTALLED_APPS = [
     'coder',
     'commands',
     'planner',
-    'completions'
+    'completions',
+    'app'
 ]
 
 MIDDLEWARE = [

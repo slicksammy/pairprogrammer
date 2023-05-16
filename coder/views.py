@@ -25,7 +25,7 @@ class RunCoderView(APIView):
         id = data["id"]
         interface = Interface(id)
         interface.run()
-        return Response({ 'command': interface.current_command() } , status=status.HTTP_200_OK)
+        return Response(interface.status() , status=status.HTTP_200_OK)
     
 class AppendOutputView(APIView):
     def post(self, request):

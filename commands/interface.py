@@ -18,7 +18,8 @@ class Interface:
         "bundle": Bundle,
         "ls": Ls,
         "python": Python,
-        "mv": Mv
+        "mv": Mv,
+        "yarn": Yarn
     }
 
     @classmethod

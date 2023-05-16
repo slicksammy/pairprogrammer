@@ -15,3 +15,14 @@ class Coder(models.Model):
 
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+
+    running = models.BooleanField(null=False, default=False)
+
+class ParsedResponse(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    coder_id = models.UUIDField(null=False)
+    response = models.TextField(null=False)
+    # TODO make this nullable and update parse interface to save null on error
+    parsed_response = models.JSONField()
+    error = models.JSONField(null=True)
+    parser = models.TextField(max_length=50, null=False)

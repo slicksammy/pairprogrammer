@@ -104,11 +104,11 @@ class Interface:
         new_message = message_interface.create_message({ "role": role, "content": content })
         self.messages.append(new_message)
 
-    def __run_completion(self, messages, model="gpt-3.5-turbo"):
+    def __run_completion(self, messages, model="gpt-4"):
         formatted_messages = [{ "content": message["content"], "role": message["role"] } for message in messages]
-        completions_interface = CompletionsInterface()
-        if completions_interface.available_completion_tokens(formatted_messages, model) > 200:
-            return completions_interface.run_completion(formatted_messages, model)
+        if CompletionsInterface.available_completion_tokens(formatted_messages, model) > 200:
+            completion =  CompletionsInterface.create_completion(Planner, self.planner.id, formatted_messages, model)
+            return completion.content
         else:
             raise Exception("not enough tokens")
     

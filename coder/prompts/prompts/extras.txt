@@ -1,0 +1,12 @@
+    - "update_file"
+        arguments:
+            "file_path":
+                description: the relative path to the file
+                required: true
+            "content":
+                description: the content to write to the file
+                required: true
+            "line_number":
+                description: which line to insert the content, must be greater than or equal to 0.
+                required: true
+        description: will insert "content" into the file starting at the line number. Make sure to first read the file and ammend it with the new content.

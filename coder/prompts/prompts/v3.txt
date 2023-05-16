@@ -1,0 +1,31 @@
+REQUIREMENTS:
+<<REQUIREMENTS>>
+
+CONTEXT:
+<<CONTEXT>>
+
+TASKS:
+<<TASKS>>
+
+RESPOND WITH ONE OF THE FOLLOWING FORMATS:
+
+If you need more clarification or want to ask me a question, use the following FORMAT:
+QUESTION,{question}
+
+If you want to read a file, use the following FORMAT. The output will be given back to you for subsequent tasks:
+READ,{filename}
+
+If you want to add a new file, use the following FORMAT:
+CREATE,{filename}
+
+If you want to update an existing file, use the following FORMAT (this will overwrite the entire file):
+UPDATE,{filename}
+{new_content}
+
+If you want to run a Bundler command, use the following FORMAT
+BUNDLE,{cmd}
+
+If you want to run a Rails command, use the following FORMAT
+RAILS,{cmd}
+
+You may only respond with one at a time.
