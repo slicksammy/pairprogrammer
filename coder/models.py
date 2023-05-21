@@ -17,6 +17,7 @@ class Coder(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
 
     running = models.BooleanField(null=False, default=False)
+    reached_max_length = models.BooleanField(null=False, default=False)
 
 class ParsedResponse(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)

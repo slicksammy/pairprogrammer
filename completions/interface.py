@@ -28,6 +28,13 @@ class Interface:
         content = response["choices"][0]["message"]["content"]
         completion = Completion(response=response, content=content, completer_type=ContentType.objects.get_for_model(completer_type), completer_id=completer_id)
         completion.save()
-        return completion
+        return Interface(completion=completion)
 
-# the old run_completion method has been removed
+    def __init__(self, completion=None, completion_id=None):
+        self.completion = completion or Completion.objects.get(id=completion_id)
+
+    def reached_max_length(self):
+        return self.completion.response["choices"][0]["finish_reason"] == "length"
+
+    def content(self):
+        return self.completion.content

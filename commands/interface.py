@@ -23,7 +23,7 @@ class Interface:
     }
 
     @classmethod
-    def valid_command(cls, command):
+    def command_exists(cls, command):
         return command in cls.COMMANDS
 
     @classmethod

@@ -74,35 +74,40 @@ class Interface:
     def run(self):
         if self.coder.running:
             return
+        elif self.coder.reached_max_length:
+            return
         elif self.messages[-1].message_content["role"] != "assistant":
             try:
                 self.__log("running", "started")
                 self.coder.running = True
                 self.coder.save()
-                content = self.__run_completion()
-                self.__log("response", content)
-                try:
-                    # parse as save the command as a dictionary
-                    parsed = PromptInterface(self.version, self.coder).parse_response(content)
-                    self.__append_message(content, role="assistant", parsed=parsed)
-                    self.__log("parsed", parsed)
-                except Exception as e:
-                    # if you cannot parse it save the content and tell openAI there was an erro
-                    breakpoint()
-                    self.__append_message(content, role="assistant")
-                    self.__mark_previous_message_as_error()
-                    self.__append_response_exception(e)
-                    return
-                
-                if parsed.get("command"): # sometimes it might just be a comment
-                    valid_command = CommandInterface.valid_command(parsed["command"])
-                    if not valid_command:
+                completion_interface = self.__run_completion()
+                if completion_interface.reached_max_length():
+                    self.coder.reached_max_length = True
+                else:
+                    content = completion_interface.content()
+                    self.__log("response", content)
+                    try:
+                        # parse as save the command as a dictionary
+                        parsed = PromptInterface(self.version, self.coder).parse_response(content)
+                        self.__append_message(content, role="assistant", parsed=parsed)
+                        self.__log("parsed", parsed)
+                    except Exception as e:
+                        # if you cannot parse it save the content and tell openAI there was an erro
+                        self.__append_message(content, role="assistant")
                         self.__mark_previous_message_as_error()
-                        self.__append_invalid_command(parsed["command"])
-                    argument_validations = CommandInterface.validate_arguments(parsed["command"], parsed["arguments"])
-                    if len(argument_validations) > 0:
-                        self.__mark_previous_message_as_error()
-                        self.__append_argument_validations(argument_validations)
+                        self.__append_response_exception(e)
+                        return
+                    
+                    if parsed.get("command"): # sometimes it might just be a comment
+                        command_exists = CommandInterface.command_exists(parsed["command"])
+                        if not command_exists:
+                            self.__mark_previous_message_as_error()
+                            self.__append_invalid_command(parsed["command"])
+                        argument_validations = CommandInterface.validate_arguments(parsed["command"], parsed["arguments"])
+                        if len(argument_validations) > 0:
+                            self.__mark_previous_message_as_error()
+                            self.__append_argument_validations(argument_validations)
             finally:
                 self.coder.running = False
                 self.coder.save()
@@ -116,7 +121,8 @@ class Interface:
             return {
                 "running": False,
                 "error": self.messages[-1].message_content["error"],
-                "system_message": self.__current_assistant_message()
+                "system_message": self.__current_assistant_message(),
+                "reached_max_length": self.coder.reached_max_length
             }
 
     def __current_assistant_message(self):
@@ -178,7 +184,7 @@ class Interface:
         if CompletionsInterface.available_completion_tokens(formatted_messages, model) > 200:
             # TODO rescue openai.error.APIError: Bad gateway
             completion = CompletionsInterface.create_completion(Coder, self.coder.id, formatted_messages, model)
-            return completion.content
+            return completion
         else:
             raise NotEnoughTokensException("not enough tokens available")
     
