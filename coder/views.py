@@ -23,9 +23,15 @@ class RunCoderView(APIView):
     def post(self, request):
         data = request.data
         id = data["id"]
+        print("*"*50)
+        print(f"starting coder run for {id}")
         interface = Interface(id)
         interface.run()
-        return Response(interface.status() , status=status.HTTP_200_OK)
+        response = Response(interface.status() , status=status.HTTP_200_OK)
+        print("*"*50)
+        print("api response")
+        print(response.data)
+        return response
     
 class AppendOutputView(APIView):
     def post(self, request):
@@ -55,10 +61,10 @@ class AppendExceptionView(APIView):
     def post(self, request):
         data = request.data
         coder_id = data.get('id')
-        exception_data = data.get('exception')
         exception_message = data.get('exception_message')
-        if not coder_id or not exception_data or not exception_message:
+        exception_class = data.get('exception')
+        if not coder_id or not exception_class or not exception_message:
             return Response(status=status.HTTP_400_BAD_REQUEST)
         interface = Interface(coder_id)
-        interface.append_exception(exception_data, exception_message)
+        interface.client_error(exception_class, exception_message)
         return Response(status=status.HTTP_200_OK)

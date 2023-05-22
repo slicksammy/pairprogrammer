@@ -71,43 +71,49 @@ class Interface:
     def append_user_message(self, content):
         self.__append_message(content, role="user")
     
+    def __delete_assistant_error(self):
+        if self.messages[-1].message_content["role"] == "assistant" and self.messages[-1].message_content["error"]:
+                # TODO move to interface and do not delete, need to archive
+            self.messages[-1].delete()
+         
+        return True
+    
     def run(self):
         if self.coder.running:
             return
         elif self.coder.reached_max_length:
             return
-        elif self.messages[-1].message_content["role"] != "assistant":
+        else: 
+            self.__delete_assistant_error() # if there was an issue before we could add an exception message to the conversation lets delete the previous message and try again
             try:
                 self.__log("running", "started")
                 self.coder.running = True
                 self.coder.save()
                 completion_interface = self.__run_completion()
                 if completion_interface.reached_max_length():
-                    self.coder.reached_max_length = True
+                    self.coder.reached_max_length = True # if it reached max length the response is probably not parsable
                 else:
                     content = completion_interface.content()
                     self.__log("response", content)
-                    try:
-                        # parse as save the command as a dictionary
-                        parsed = PromptInterface(self.version, self.coder).parse_response(content)
-                        self.__append_message(content, role="assistant", parsed=parsed)
+                    prompt_interface = PromptInterface(self.version, self.coder)
+                    record = prompt_interface.parse_response(content)
+                    parsed = record.parsed_response
+                    self.__append_message(content, role="assistant", parsed=parsed)
+                    if record.error is None:
                         self.__log("parsed", parsed)
-                    except Exception as e:
-                        # if you cannot parse it save the content and tell openAI there was an erro
-                        self.__append_message(content, role="assistant")
+                        if parsed.get("command"): # sometimes it might just be a comment
+                            command_exists = CommandInterface.command_exists(parsed["command"])
+                            if not command_exists:
+                                self.__mark_previous_message_as_error()
+                                self.__append_invalid_command(parsed["command"])
+                            argument_validations = CommandInterface.validate_arguments(parsed["command"], parsed["arguments"])
+                            if len(argument_validations) > 0:
+                                self.__mark_previous_message_as_error()
+                                self.__append_argument_validations(argument_validations)
+                    else:
                         self.__mark_previous_message_as_error()
-                        self.__append_response_exception(e)
-                        return
-                    
-                    if parsed.get("command"): # sometimes it might just be a comment
-                        command_exists = CommandInterface.command_exists(parsed["command"])
-                        if not command_exists:
-                            self.__mark_previous_message_as_error()
-                            self.__append_invalid_command(parsed["command"])
-                        argument_validations = CommandInterface.validate_arguments(parsed["command"], parsed["arguments"])
-                        if len(argument_validations) > 0:
-                            self.__mark_previous_message_as_error()
-                            self.__append_argument_validations(argument_validations)
+                        parse_error_message = prompt_interface.parse_recovery_message(record)
+                        self.__append_message(parse_error_message, role="user")
             finally:
                 self.coder.running = False
                 self.coder.save()
@@ -118,16 +124,21 @@ class Interface:
                 "running": True
             }
         else:
+            last_assistant_message = self.__last_assistant_message()
             return {
                 "running": False,
-                "error": self.messages[-1].message_content["error"],
+                "error": last_assistant_message is not None and last_assistant_message.message_content["error"],
                 "system_message": self.__current_assistant_message(),
                 "reached_max_length": self.coder.reached_max_length
             }
 
+    # this message we send back to the client until we receive a response
     def __current_assistant_message(self):
         if (self.messages[-1].message_content["role"] == "assistant") and not(self.messages[-1].message_content["error"]):
             return self.messages[-1].message_content["parsed"]
+        
+    def __last_assistant_message(self):
+        next((message for message in reversed(self.messages) if message.message_content.get("role") == "assistant"), None)
 
     def current_task(self):
         return self.coder.tasks[self.coder.current_task_index]
@@ -138,8 +149,8 @@ class Interface:
     def skip_task(self):
         self.__next_task()
 
-    def append_exception(self, e_type, e_message):
-        content = f"{e_type} {e_message[:100]}"
+    def client_error(self, exception_class, exception_message):
+        content = PromptInterface(self.version, self.coder).client_exception(exception_class, exception_message)
         self.__append_message(content, role="user", error=True)
 
     def __log(self, name, content):
@@ -162,20 +173,21 @@ class Interface:
         {command} is not a valid command
         """).strip()
         
-        self.__append_message(content, role="user", error=True)
+        self.__append_message(content, role="user")
 
     def __append_argument_validations(self, validation_errors):
         content = textwrap.dedent(f"""
-        The arguments you provided had validation errors:
+        The arguments you provided have the following validation errors:
         {validation_errors}
         Please try again with the proper arguments
         """).strip()
         
-        self.__append_message(content, role="user", error=True)
+        self.__append_message(content, role="user")
 
     def __mark_previous_message_as_error(self):
         message = self.messages[-1]
         message.message_content["error"] = True
+        # TODO this should be in the messages interface
         message.save()
 
     # TODO configure model on coder instance

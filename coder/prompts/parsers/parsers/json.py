@@ -1,5 +1,4 @@
 import json
-from json.decoder import JSONDecodeError
 import textwrap
 from coder.exceptions import InvalidAssistantResponseException
 
@@ -41,7 +40,5 @@ class Json:
             return {
                 "explanation": response 
             }
-        try:
-            return json.loads(json_string)
-        except JSONDecodeError as e:
-            raise InvalidAssistantResponseException(e.args[0])
+        
+        return json.loads(json_string)
