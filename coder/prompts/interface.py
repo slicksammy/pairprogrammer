@@ -61,8 +61,8 @@ class Interface:
         error = parsed_object.error
         if error.get("class") == str(JSONDecodeError):
             return textwrap.dedent("""
-            I was not able to parse your response.
-            For the next message only, explain what I should do without a command.
+            I was unable to parse your response and could not determine a command.
+            For the next message only, repeat your previous message without a command.
             """).strip()
         else:
             return textwrap.dedent(f"""

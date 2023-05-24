@@ -16,7 +16,7 @@ class Coder(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
-    running = models.BooleanField(null=False, default=False)
+    running_at = models.DateTimeField(null=True)
     reached_max_length = models.BooleanField(null=False, default=False)
 
 class ParsedResponse(models.Model):

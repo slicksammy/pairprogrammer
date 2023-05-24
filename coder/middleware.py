@@ -1,0 +1,24 @@
+from django.http import JsonResponse
+from app.interface import Interface as AppInterface
+from rest_framework import status
+from coder.views import CreateCoderView, AppendOutputView, RunCoderView, ListCoderView, CreateUserMessageView, AppendExceptionView
+
+
+class APIKeyAuthenticationMiddleware:
+    def __init__(self, get_response):
+        self.get_response = get_response
+
+    def __call__(self, request):
+        response = self.get_response(request)
+        return response
+
+    def process_view(self, request, view_func, view_args, view_kwargs):
+        coder_views = [CreateCoderView, AppendOutputView, RunCoderView, ListCoderView, CreateUserMessageView, AppendExceptionView]
+        if view_func.view_class not in coder_views:
+            return None
+        api_key = request.headers.get('Pairprogrammer-Api-Key')
+        if not api_key:
+            return JsonResponse({ 'error': "missing api key" }, status=status.HTTP_401_UNAUTHORIZED)
+        if not AppInterface.valid_user_api_key(api_key):
+            return JsonResponse({ 'error': "api_key is invalid" }, status=status.HTTP_401_UNAUTHORIZED)
+        pass
