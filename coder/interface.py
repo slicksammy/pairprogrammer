@@ -144,7 +144,8 @@ class Interface:
                 "running": False,
                 "error": last_assistant_message is not None and last_assistant_message.message_content["error"],
                 "system_message": self.__current_assistant_message(),
-                "reached_max_length": self.coder.reached_max_length
+                "reached_max_length": self.coder.reached_max_length,
+                "availabe_tokens": CompletionsInterface.available_completion_tokens(self.messages)
             }
 
     # this message we send back to the client until we receive a response
@@ -209,6 +210,7 @@ class Interface:
     def __run_completion(self, model="gpt-4"):
         formatted_messages = [{ "content": message.message_content["content"], "role": message.message_content["role"] } for message in self.messages]
         # TODO rescue openai.error.APIError: Bad gateway
+        # openai.error.RateLimitError
         completion = CompletionsInterface.create_completion(Coder, self.coder.id, formatted_messages, model)
         return completion
     

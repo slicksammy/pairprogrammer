@@ -1,17 +1,30 @@
 {% extends "base_generic.html" %}
 {% block content %}
-<div class="container">
-    <h1>Welcome to the dashboard!</h1>
-    <h2>API Keys</h2>
-    <form method="post" action="/dashboard/api_key">
-        {% csrf_token %}
-        <button type="submit">Generate Key</button>
-    </form>
-    <h3>Your API keys:</h3>
+{% load static %}
+
+<link rel="stylesheet" href="{% static 'css/dashboard_styles.css' %}">
+<script src="{% static 'js/dashboard_scripts.js' %}"></script>
+
+<div class="left-nav">
     <ul>
-        {% for token in tokens %}
-            <li>{{ token.token }}</li>
-        {% endfor %}
+        <li><a href="#api-keys">API Keys</a></li>
     </ul>
+</div>
+
+<div class="content">
+    <h1>Welcome to the {{ user.first_name }}!</h1>
+    <div class="api-keys-section">
+        <h2 id="api-keys">API Keys</h2>
+        <form method="post" action="/dashboard/api_key">
+            {% csrf_token %}
+            <button type="submit">Generate Key</button>
+        </form>
+        <h3>Your API keys:</h3>
+        <ul>
+            {% for token in tokens %}
+                <li>{{ token.token }}</li>
+            {% endfor %}
+        </ul>
+    </div>
 </div>
 {% endblock %}

@@ -13,8 +13,8 @@ class APIKeyAuthenticationMiddleware:
         return response
 
     def process_view(self, request, view_func, view_args, view_kwargs):
-        coder_views = [CreateCoderView, AppendOutputView, RunCoderView, ListCoderView, CreateUserMessageView, AppendExceptionView]
-        if view_func.view_class not in coder_views:
+        api_views = [CreateCoderView, AppendOutputView, RunCoderView, ListCoderView, CreateUserMessageView, AppendExceptionView]
+        if view_func.view_class not in api_views:
             return None
         api_key = request.headers.get('Pairprogrammer-Api-Key')
         if not api_key:

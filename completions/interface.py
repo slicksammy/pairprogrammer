@@ -13,7 +13,7 @@ class Interface:
     @classmethod
     def available_completion_tokens(self, messages, model="gpt-3.5-turbo"):
         content = "".join(
-            map(lambda x: x["content"], messages)
+            map(lambda x: x.message_content["content"], messages)
         )
         encoding = tiktoken.get_encoding("cl100k_base")
         max_tokens = Interface.MAX_TOKENS[model]
