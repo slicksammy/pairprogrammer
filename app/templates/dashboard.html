@@ -21,8 +21,8 @@
         </form>
         <h3>Your API keys:</h3>
         <ul>
-            {% for token in tokens %}
-                <li>{{ token.token }}</li>
+            {% for key in api_keys %}
+                <li>{{ key.key }}</li>
             {% endfor %}
         </ul>
     </div>

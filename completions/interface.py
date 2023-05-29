@@ -11,7 +11,7 @@ class Interface:
     }
 
     @classmethod
-    def available_completion_tokens(self, messages, model="gpt-3.5-turbo"):
+    def available_completion_tokens(self, messages, model="gpt-4"):
         content = "".join(
             map(lambda x: x.message_content["content"], messages)
         )
@@ -20,7 +20,7 @@ class Interface:
         return max_tokens - len(encoding.encode(content))
 
     @classmethod
-    def create_completion(cls, completer_type, completer_id, messages, model="gpt-3.5-turbo"):
+    def create_completion(cls, completer_type, completer_id, messages, model="gpt-4"):
         response = openai.ChatCompletion.create(
             model=model,
             messages=messages

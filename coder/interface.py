@@ -8,6 +8,8 @@ import textwrap
 from planner.interface import Interface as PlannerInterface
 from coder.prompts.interface import Interface as PromptInterface
 from .prompts.interface import Interface as PromptInterface
+from app.models import User
+from openai.error import OpenAIError
 
 class Interface:
     @classmethod
@@ -21,13 +23,14 @@ class Interface:
         
 
     @classmethod
-    def create_coder(cls, tasks, requirements, context, prompt_version="1"):
+    def create_coder(cls, tasks, requirements, context, user_id, prompt_version="1"):
         coder = Coder.objects.create(
             tasks=tasks,
             requirements=requirements,
             context=context,
             current_task_index=0,
             complete=False,
+            user_id=user_id
         )
 
         prompt = PromptInterface(prompt_version, coder).prompt(context=context, tasks=tasks, requirements=requirements)
@@ -48,13 +51,14 @@ class Interface:
         return coder
 
     @classmethod
-    def list(cls):
-        return list(map(lambda coder: { "id" : coder.id, "tasks": coder.tasks, "requirements": coder.requirements }, list(Coder.objects.order_by("created_at").all())))
+    def list(cls, user_id):
+        return list(map(lambda coder: { "id" : coder.id, "tasks": coder.tasks, "requirements": coder.requirements, "created_at": coder.created_at }, list(Coder.objects.filter(user_id=user_id).order_by("created_at").all())))
 
     def __init__(self, coder_id):
         self.coder = Coder.objects.get(id=coder_id)
         self.messages = MessagesInterface(Coder, coder_id).list()
         self.version = "1"
+        self.model = "gpt-4"
 
     def display_messages(self):
         for message in self.messages:
@@ -66,10 +70,10 @@ class Interface:
 
     def append_output(self, output):
         if self.messages[-1].message_content["role"] == "assistant" and self.messages[-1].message_content["error"] == False:
-            content = f"""
+            content = textwrap.dedent(f"""
             Output:
             {output}
-            """
+            """).strip()
             self.__append_message(content, role="user")
 
             # the second to last message is previously the last message, the system message
@@ -101,7 +105,7 @@ class Interface:
                 self.__log("running", "started")
                 self.coder.running_at = timezone.now()
                 self.coder.save()
-                completion_interface = self.__run_completion()
+                completion_interface = self.__run_completion(self.model)
                 content = completion_interface.content()
                 self.__log("response", content)
                 if completion_interface.reached_max_length():
@@ -127,6 +131,9 @@ class Interface:
                         self.__mark_previous_message_as_error()
                         parse_error_message = prompt_interface.parse_recovery_message(record)
                         self.__append_message(parse_error_message, role="user")
+            except OpenAIError as e:
+                self.__log("openai error", e.args[0])
+                self.__append_message(e.args[0], role="assistant", error=True) # hack because when we call run this message will get deleted
             finally:
                 self.coder.running_at = None
                 self.coder.save()
@@ -145,7 +152,7 @@ class Interface:
                 "error": last_assistant_message is not None and last_assistant_message.message_content["error"],
                 "system_message": self.__current_assistant_message(),
                 "reached_max_length": self.coder.reached_max_length,
-                "availabe_tokens": CompletionsInterface.available_completion_tokens(self.messages)
+                "availabe_tokens": CompletionsInterface.available_completion_tokens(self.messages, self.model)
             }
 
     # this message we send back to the client until we receive a response
@@ -207,12 +214,11 @@ class Interface:
         message.save()
 
     # TODO configure model on coder instance
-    def __run_completion(self, model="gpt-4"):
+    def __run_completion(self, model):
         formatted_messages = [{ "content": message.message_content["content"], "role": message.message_content["role"] } for message in self.messages]
         # TODO rescue openai.error.APIError: Bad gateway
         # openai.error.RateLimitError
-        completion = CompletionsInterface.create_completion(Coder, self.coder.id, formatted_messages, model)
-        return completion
+        return CompletionsInterface.create_completion(Coder, self.coder.id, formatted_messages, model)
     
     def __append_message(self, content, role="user", parsed=None, error=False, task=False):
         message_interface = MessagesInterface(Coder, self.coder.id)

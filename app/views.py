@@ -1,3 +1,4 @@
+import os
 import string
 import random
 from django.shortcuts import render, redirect
@@ -7,13 +8,19 @@ from django.contrib.auth.decorators import login_required
 from django.views import View
 from app.authentication.email_backend import EmailBackend
 from .forms import CustomUserCreationForm
-from .models import UserToken
+from .models import UserApiKey
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.conf import settings
 
 
 class HomeView(View):
     def get(self, request):
-        return render(request, 'home.html')
+        readme_content = None
+        readme_path = os.path.join(settings.BASE_DIR, 'README.md')
+        with open(readme_path, 'r') as f:
+            readme_content = f.read()
+
+        return render(request, 'home.html', {'readme_content': readme_content})
 
 
 class SignupView(View):
@@ -49,19 +56,19 @@ class DashboardView(LoginRequiredMixin, View):
     login_url = '/'
 
     def get(self, request):
-        tokens = UserToken.objects.filter(user=request.user)
-        return render(request, 'dashboard.html', {'tokens': tokens, 'user': request.user})
+        api_keys = UserApiKey.objects.filter(user=request.user)
+        return render(request, 'dashboard.html', {'api_keys': api_keys, 'user': request.user})
 
 
 class GenerateTokenView(LoginRequiredMixin, View):
     login_url = '/'
 
     def post(self, request):
-        tokens_count = UserToken.objects.filter(user=request.user).count()
-        if tokens_count < 2:
-            token = ''.join(random.choices(string.ascii_letters + string.digits, k=20))
-            user_token = UserToken(user=request.user, token=token)
-            user_token.save()
+        keys_count = UserApiKey.objects.filter(user=request.user).count()
+        if keys_count < 2:
+            key = ''.join(random.choices(string.ascii_letters + string.digits, k=20))
+            api_key = UserApiKey(user=request.user, key=key)
+            api_key.save()
             messages.success(request, 'API key generated successfully')
         else:
             messages.error(request, 'A user can only have up to 2 API keys')

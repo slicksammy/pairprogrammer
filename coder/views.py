@@ -4,11 +4,23 @@ from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
 from .interface import Interface
-   
+from django.views.decorators.csrf import csrf_exempt
+from django.utils.decorators import method_decorator
+
+
+class ExceptionHandlerView(APIView):
+    authentication_classes = []
+
+    def handle_exception(self, exc):
+        return Response({'error': str(exc)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+    
 # Create your views here.
-class CreateCoderView(APIView):
+@method_decorator(csrf_exempt, name='dispatch')
+class CreateCoderView(ExceptionHandlerView):
+    @csrf_exempt
     def post(self, request):
         data = request.data
+        user_id = request.session.get("api_user_id")
         if data.get("from_planner"):
             planner_id = data["planner_id"]
             coder = Interface.create_coder_from_planner(planner_id)
@@ -16,10 +28,12 @@ class CreateCoderView(APIView):
             tasks = data["tasks"]
             requirements = data["requirements"]
             context = data["context"]
-            coder = Interface.create_coder(tasks, requirements, context)
+            coder = Interface.create_coder(tasks=tasks, requirements=requirements, context=context, user_id=user_id)
         return Response({'id': coder.id }, status=status.HTTP_200_OK)
-    
-class RunCoderView(APIView):
+
+@method_decorator(csrf_exempt, name='dispatch')
+class RunCoderView(ExceptionHandlerView):
+    @csrf_exempt
     def post(self, request):
         data = request.data
         id = data["id"]
@@ -33,7 +47,7 @@ class RunCoderView(APIView):
         print(response.data)
         return response
     
-class AppendOutputView(APIView):
+class AppendOutputView(ExceptionHandlerView):
     def post(self, request):
         data = request.data
         id = data["id"]
@@ -42,12 +56,13 @@ class AppendOutputView(APIView):
         interface.append_output(output)
         return Response(status=status.HTTP_200_OK)
     
-class ListCoderView(APIView):
+class ListCoderView(ExceptionHandlerView):
     def get(self, request):
-        coders = Interface.list()
+        user_id = request.session.get("api_user_id")
+        coders = Interface.list(user_id)
         return Response(coders, status=status.HTTP_200_OK)
     
-class CreateUserMessageView(APIView):
+class CreateUserMessageView(ExceptionHandlerView):
     def post(self, request):
         data = request.data
         id = data["id"]
@@ -57,7 +72,7 @@ class CreateUserMessageView(APIView):
         return Response(status=status.HTTP_200_OK)
 
 
-class AppendExceptionView(APIView):    
+class AppendExceptionView(ExceptionHandlerView):    
     def post(self, request):
         data = request.data
         coder_id = data.get('id')

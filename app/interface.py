@@ -1,9 +1,7 @@
-from .models import UserToken
+from .models import UserApiKey
 class Interface:
     @classmethod
-    def valid_user_api_key(cls, key):
-        try:
-            UserToken.objects.get(token=key)
-            return True
-        except UserToken.DoesNotExist:
-            return False
+    def user_from_api_key(cls, key):
+        key = UserApiKey.objects.filter(key=key).first()
+        if key is not None:
+            return key.user
