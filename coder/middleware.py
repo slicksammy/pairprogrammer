@@ -2,9 +2,7 @@ from django.http import JsonResponse
 from app.interface import Interface as AppInterface
 from rest_framework import status
 from coder.views import CreateCoderView, AppendOutputView, RunCoderView, ListCoderView, CreateUserMessageView, AppendExceptionView
-from django.middleware import csrf
-from django.contrib.auth import login, authenticate
-from django.contrib.auth.models import User
+from app.views import ClientException
 
 
 class APIKeyAuthenticationMiddleware:
@@ -16,7 +14,7 @@ class APIKeyAuthenticationMiddleware:
         return response
 
     def process_view(self, request, view_func, view_args, view_kwargs):
-        api_views = [CreateCoderView, AppendOutputView, RunCoderView, ListCoderView, CreateUserMessageView, AppendExceptionView]
+        api_views = [CreateCoderView, AppendOutputView, RunCoderView, ListCoderView, CreateUserMessageView, AppendExceptionView, ClientException]
         # Need class based views for this to work
         # Configure which views need auth above
         if view_func.view_class not in api_views:

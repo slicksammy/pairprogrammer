@@ -52,7 +52,7 @@ class Interface:
 
     @classmethod
     def list(cls, user_id):
-        return list(map(lambda coder: { "id" : coder.id, "tasks": coder.tasks, "requirements": coder.requirements, "created_at": coder.created_at }, list(Coder.objects.filter(user_id=user_id).order_by("created_at").all())))
+        return list(map(lambda coder: { "id" : coder.id, "tasks": coder.tasks, "requirements": coder.requirements, "created_at": coder.created_at }, list(Coder.objects.filter(user_id=user_id).order_by("-created_at").all())))
 
     def __init__(self, coder_id):
         self.coder = Coder.objects.get(id=coder_id)
@@ -123,6 +123,7 @@ class Interface:
                             if not command_exists:
                                 self.__mark_previous_message_as_error()
                                 self.__append_invalid_command(parsed["command"])
+                            # TODO try to fix some arguments here, for example when command is "comment" and there are no arguments but there is an explanation
                             argument_validations = CommandInterface.validate_arguments(parsed["command"], parsed["arguments"])
                             if len(argument_validations) > 0:
                                 self.__mark_previous_message_as_error()
