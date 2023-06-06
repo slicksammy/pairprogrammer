@@ -29,7 +29,8 @@ SECRET_KEY = 'django-insecure-_i8*uf7xy9hx9tpq4*iu8p_e+-slm^03i&5m_q4k*2gj+$&%_w
 DEBUG = False
 
 ALLOWED_HOSTS = [
-    'pairprogrammer-production.up.railway.app'
+    'pairprogrammer-production.up.railway.app',
+    'localhost',
 ]
 
 # Application definition
