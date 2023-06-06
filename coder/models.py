@@ -5,7 +5,7 @@ import uuid
 # Create your models here.
 class Coder(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    user = models.ForeignKey('auth.User', on_delete=models.CASCADE, null=False, default=User.objects.first().id)
+    user = models.ForeignKey('auth.User', on_delete=models.CASCADE, null=False)
     tasks = models.JSONField(null=False)
     current_task_index = models.IntegerField(null=False)
     files_changed = models.JSONField(null=False, default=dict)
