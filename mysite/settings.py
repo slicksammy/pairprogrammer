@@ -32,7 +32,7 @@ ALLOWED_HOSTS = [
     'pairprogrammer-production.up.railway.app'
 ]
 
-
+# trigger deploy
 # Application definition
 
 INSTALLED_APPS = [
