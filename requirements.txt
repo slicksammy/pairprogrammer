@@ -7,3 +7,4 @@ django==4.1.5
 django.apps
 djangorestframework==3.14.0
 dj_database_url
+gunicorn
