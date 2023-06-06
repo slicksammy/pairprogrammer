@@ -1,3 +1,0 @@
-openai
-openai[embeddings]
-tiktoken
