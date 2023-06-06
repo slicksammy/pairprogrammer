@@ -84,13 +84,13 @@ WSGI_APPLICATION = 'mysite.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/4.1/ref/settings/#databases
 
-DATABSES = {}
+DATABASES = {}
 database_url = os.environ.get('DATABASE_URL')
 
 if database_url:
-    DATABSES['default'] = dj_database_url.parse(database_url)
+    DATABASES['default'] = dj_database_url.parse(database_url)
 else:
-    DATABSES['default'] = {
+    DATABASES['default'] = {
         'ENGINE': 'django.db.backends.postgresql',
         'NAME': 'pythonapp',
         'USER': 'sam',
