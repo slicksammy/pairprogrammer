@@ -11,6 +11,9 @@ https://docs.djangoproject.com/en/4.1/ref/settings/
 """
 
 from pathlib import Path
+import os
+import dj_database_url
+
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -81,15 +84,19 @@ WSGI_APPLICATION = 'mysite.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/4.1/ref/settings/#databases
 
-DATABASES = {
-    'default': {
+DATABSES = {}
+database_url = os.environ.get('DATABASE_URL')
+
+if database_url:
+    DATABSES['default'] = dj_database_url.parse(database_url)
+else:
+    DATABSES['default'] = {
         'ENGINE': 'django.db.backends.postgresql',
         'NAME': 'pythonapp',
         'USER': 'sam',
         'HOST': 'localhost',
         'PORT': '5432',
     }
-}
 
 
 # Password validation
