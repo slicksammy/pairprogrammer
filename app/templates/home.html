@@ -1,53 +1,29 @@
 {% extends "base_generic.html" %}
 {% load static %}
 {% block content %}
+<!-- Navbar -->
+<nav class='navbar navbar-expand-lg navbar-light bg-light'>
+  <div class='container'>
+    <a class='navbar-brand' href='/'>Pear Programmer</a>
+    <ul class='navbar-nav ms-auto'>
+      <li class='nav-item'>
+        <a class='nav-link' href='/signup'>Signup/Login</a>
+      </li>
+    </ul>
+  </div>
+</nav>
+
 <!-- Pear Programmer section -->
 <div class="container">
-  <section id='pear-programmer' class='py-5'>
-    <div class='container'>
-      <div class='row'>
-        <div class='col-lg-6'>
-          <h2 class='mb-4'>Pear Programmer</h2>
-          <p>Discover the power of AI-driven pair programming with our innovative platform. Pear Programmer empowers engineers to produce higher quality code in a shorter period, by bringing developers together to work on projects, collaborate, and learn from one another.</p>
-        </div>
-        <div class='col-lg-6'>
-          <img src='https://via.placeholder.com/500x300' alt='Pear Programmer' class='img-fluid'>
-        </div>
-      </div>
-    </div>
+  <section id='pear-programmer' class='py-5 text-center'>
+    <img src="{% static 'images/homepage_image.png' %}" alt='Pear Programmer' class='img-fluid mb-4 pear-programmer-image'>
+    <p>An automated coding assistant designed to make coding faster and efficient by streamlining the development process, providing relevant suggestions, and ensuring high-quality code production.</p>
   </section>
 
-  <!-- Planner section -->
-  <section id='planner' class='bg-light py-5'>
-    <div class='container'>
-      <div class='row'>
-        <div class='col-lg-6'>
-          <h2 class='mb-4'>Planner</h2>
-          <p>Our planning tools make it easy to stay organized and schedule your work with precision. With an intuitive interface and several built-in templates, you can quickly create a plan for any project.</p>
-        </div>
-        <div class='col-lg-6'>
-          <div class='embed-responsive embed-responsive-16by9'>
-            <iframe class='embed-responsive-item' src='https://www.youtube.com/embed/0ocf7u76WSo' allowfullscreen></iframe>
-          </div>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- Coder section -->
-  <section id='coder' class='py-5'>
-    <div class='container'>
-      <div class='row'>
-        <div class='col-lg-6'>
-          <h2 class='mb-4'>Coder</h2>
-          <p>Our powerful code editor streamlines the development process and encourages efficient, effective programming. With syntax highlighting, debugging tools, and a customizable interface, you can focus on writing great code.</p>
-        </div>
-        <div class='col-lg-6'>
-          <div class='embed-responsive embed-responsive-16by9'>
-            <iframe class='embed-responsive-item' src='https://www.youtube.com/embed/U3IryKj-l40' allowfullscreen></iframe>
-          </div>
-        </div>
-      </div>
+  <section>
+    <div class="text-center">
+      <h2>Watch our Demo</h2>
+      <iframe width="560" height="315" src="https://www.youtube.com/embed/QExJGvWufr4" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
     </div>
   </section>
 
@@ -65,5 +41,19 @@
 {% block extra_js %}
   <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/5.0.3/marked.min.js" integrity="sha512-tY0a7V2POoK3yCE59YTVrDvm+ytFfS3GeFJhiP+0m5dxEurii+KGSwsRyrnSqhGP/eth6i63VeTuCSVwusySAg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
   <script src="{% static 'js/readme_md_renderer.js' %}"></script>
+{% endblock %}
+{% block extra_css %}
+<style>
+    .pear-programmer-image {
+        max-height: 300px;
+        width: auto;
+    }
+    @media (max-width: 768px) {
+        .pear-programmer-image {
+            max-height: 200px;
+            width: auto;
+        }
+    }
+</style>
 {% endblock %}
 {% endblock %}

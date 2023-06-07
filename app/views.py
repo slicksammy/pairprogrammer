@@ -17,6 +17,7 @@ from rest_framework import status
 from django.views.decorators.csrf import csrf_exempt
 from django.utils.decorators import method_decorator
 from rest_framework.views import APIView
+from .interface import Interface
 
 
 class HomeView(View):
@@ -34,15 +35,26 @@ class SignupView(View):
         return render(request, 'signup.html', {'form': form})
 
     def post(self, request):
+        signup_code = request.POST.get('signup_code')
         form = CustomUserCreationForm(request.POST)
+        
+        if Interface.signup_code_exists(signup_code) is False:
+            messages.error(request, 'Invalid signup code')
+            return render(request, 'signup.html', {'form': form})
+        
         if form.is_valid():
             user = form.save()
             login(request, user)
             return redirect('dashboard')
+        else:
+            messages.error(request, " ".join(form.errors))
+            return render(request, 'signup', {'form': form})
 
 
 class LoginView(View):
     def get(self, request):
+        if request.user.is_authenticated:
+            return redirect('dashboard')
         return render(request, 'login.html')
 
     def post(self, request):
