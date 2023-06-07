@@ -33,6 +33,8 @@ ALLOWED_HOSTS = [
     'localhost',
 ]
 
+CSRF_TRUSTED_ORIGINS = ['https://pairprogrammer-production.up.railway.app', 'http://localhost']
+
 # Application definition
 
 INSTALLED_APPS = [

@@ -47,8 +47,13 @@ class SignupView(View):
             login(request, user)
             return redirect('dashboard')
         else:
-            messages.error(request, " ".join(form.errors))
-            return render(request, 'signup', {'form': form})
+            error_message = ''
+            for field, errors in form.errors.items():
+                # Construct the error message for each field
+                field_errors = ', '.join(errors)
+                error_message += f"{field}: {field_errors}\n"
+            messages.error(request, error_message)
+            return render(request, 'signup.html', {'form': form})
 
 
 class LoginView(View):
