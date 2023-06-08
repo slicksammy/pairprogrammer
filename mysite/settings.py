@@ -13,6 +13,7 @@ https://docs.djangoproject.com/en/4.1/ref/settings/
 from pathlib import Path
 import os
 import dj_database_url
+import sys
 
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -36,16 +37,17 @@ ALLOWED_HOSTS = [
 CSRF_TRUSTED_ORIGINS = ['https://pairprogrammer-production.up.railway.app', 'http://localhost']
 
 LOGGING = {
-    "version": 1,
-    "disable_existing_loggers": False,
-    "handlers": {
-        "console": {
-            "class": "logging.StreamHandler",
+    'version': 1,
+    'disable_existing_loggers': False,
+    'handlers': {
+        'console': {
+            'class': 'logging.StreamHandler',
+            'stream': sys.stdout,
         },
     },
-    "root": {
-        "handlers": ["console"],
-        "level": "DEBUG",
+    'root': {
+        'handlers': ['console'],
+        'level': 'DEBUG',  # Set the desired log level
     },
 }
 
