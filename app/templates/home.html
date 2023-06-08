@@ -16,23 +16,27 @@
 <!-- Pear Programmer section -->
 <div class="container">
   <section id='pear-programmer' class='py-5 text-center'>
+    <p>The first, <b>truly conversational and automated</b> coding assistant</p>
     <img src="{% static 'images/homepage_image.png' %}" alt='Pear Programmer' class='img-fluid mb-4 pear-programmer-image'>
-    <p>An automated coding assistant designed to make coding faster and efficient by streamlining the development process, providing relevant suggestions, and ensuring high-quality code production.</p>
+    <p>Just give Pear a series of tasks and it will complete them in the background while you browse Reddit or check crypto prices. It will build entire features for you.</p>
   </section>
 
   <section>
     <div class="text-center">
-      <h2>Watch our Demo</h2>
-      <iframe width="560" height="315" src="https://www.youtube.com/embed/QExJGvWufr4?vq=hd720" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+      <h2>Watch the Demo</h2>
+      <iframe width="400" height="315" src="https://www.youtube.com/embed/QExJGvWufr4?vq=hd720" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
     </div>
   </section>
-
+  <br>
   <!-- README section -->
-  <section id='readme' class='bg-light py-5'>
-    <div class='container'>
-      <div class='row'>
-        <div class='col'>
-          <div id='markdown-container'>{{ readme_content|linebreaksbr }}</div>
+  <section>
+    <h2 class="text-center">Getting Started</h2>
+    <div id='readme' class=''>
+      <div class='container'>
+        <div class='row'>
+          <div class='col'>
+            <div id='markdown-container'>{{ readme_content|linebreaksbr }}</div>
+          </div>
         </div>
       </div>
     </div>
