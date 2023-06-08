@@ -32,7 +32,7 @@ DEBUG = False
 ALLOWED_HOSTS = [
     'pairprogrammer-production.up.railway.app',
     'localhost',
-    'pearprogrammer.dev'
+    'www.pearprogrammer.dev'
 ]
 
 CSRF_TRUSTED_ORIGINS = ['https://pairprogrammer-production.up.railway.app', 'http://localhost', 'https://www.pearprogrammer.dev']
