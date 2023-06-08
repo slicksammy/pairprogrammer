@@ -32,9 +32,10 @@ DEBUG = False
 ALLOWED_HOSTS = [
     'pairprogrammer-production.up.railway.app',
     'localhost',
+    'pearprogrammer.dev'
 ]
 
-CSRF_TRUSTED_ORIGINS = ['https://pairprogrammer-production.up.railway.app', 'http://localhost']
+CSRF_TRUSTED_ORIGINS = ['https://pairprogrammer-production.up.railway.app', 'http://localhost', 'https://www.pearprogrammer.dev']
 
 LOGGING = {
     'version': 1,
