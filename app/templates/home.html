@@ -2,7 +2,7 @@
 {% load static %}
 {% block content %}
 <!-- Navbar -->
-<nav class='navbar navbar-expand-lg navbar-light bg-light'>
+<nav class='navbar navbar-expand-lg navbar-light'>
   <div class='container'>
     <a class='navbar-brand' href='/'>Pear Programmer</a>
     <ul class='navbar-nav ms-auto'>
@@ -14,11 +14,11 @@
 </nav>
 
 <!-- Pear Programmer section -->
-<div class="container">
+<div class="container" id="homepage">
   <section id='pear-programmer' class='py-5 text-center'>
-    <p>The first, <b>truly conversational and automated</b> coding assistant</p>
+    <p>The first, <b>truly conversational and automated</b> coding assistant.</p>
     <img src="{% static 'images/homepage_image.png' %}" alt='Pear Programmer' class='img-fluid mb-4 pear-programmer-image'>
-    <p>Just give Pear a series of tasks and it will complete them in the background while you browse Reddit or check crypto prices. It will build entire features for you.</p>
+    <p>Give Pear a list of tasks and watch it work its magic while you indulge in Reddit scrolling or obsessively checking crypto prices. It's like having a super productive sidekick who builds entire features for you, while you perfect the art of procrastination.</p>
   </section>
 
   <section>
@@ -28,7 +28,7 @@
     </div>
   </section>
   <br>
-  <!-- README section -->
+  <!-- README section
   <section>
     <h2 class="text-center">Getting Started</h2>
     <div id='readme' class=''>
@@ -40,6 +40,52 @@
         </div>
       </div>
     </div>
+  </section> -->
+  <section>
+    <h2 class="text-center">Getting Started</h2>
+    <div class="my-4">
+      <ol>
+        <li><a href="/signup">Create</a> an account and get an API key</li>
+        <li>Make sure your system has <code>ruby</code> installed</li>
+        <li>Run <code>gem install pear-programmer</code></li>
+        <li>Run <code>pear-on init</code> to initialize the CLI (from the root of your project).</li>
+      </ol>
+      <p>Note, Pear currently supports Rails and Python applications.</p>
+    </div>
+  <section>
+  <section></section>
+    <h2 class="text-center">Usage</h2>
+    <div class="d-flex flex-column align-items-center my-4">
+      <pre class="code-snippet">pear-on help # to show help menu</pre>
+      <pre class="code-snippet">pear-on coding new # create a new coding task</pre>
+      <pre class="code-snippet">pear-on coding start # run your coding task <br>-a --auto # will only ask for your response when necessary</pre>
+      <pre class="code-snippet">pear-on coding list # view your tasks</pre>
+    </div>
+  </section>
+  <section>
+    <h2 class="text-center">Prompting</h2>
+    <div class="my-4">
+      <ul>
+        <li><strong>Context</strong> when initializatin Pear you want to provide sufficient information about your application so the LLM has a good starting point.</li>
+        <ul>
+          <li>The type of application, ie Ruby on Rails</li>
+          <li>The type of database you are using, ie Postgres</li>
+          <li>If you are using a package manager, ie Yarn, and what packages you are using, ie Bootstrap for styles</li>
+          <li>The structure of your application, ie all business logic goes in app/services</li>
+          <li>And any other information you think will make the LLM more efficient</li>
+        </ul>
+        <li><strong>Requirements</strong> a high-level overview of what you are trying to accomplish. A sentence or two should suffice.</li>
+        <ul>
+          <li>For example, if you are creating a dashboard you can say "Building a dashboard that allows users to manage credit cards"</li>
+        </ul>
+        <li><strong>Tasks</strong> these are steps that the LLM should perform in order to accomplish the requirements. You should be as specific as possible to make the LLM most efficient.</li>
+        <ul>
+          <li>For example, review app/views.py</li>
+          <li>Add authentication for the DashboardView</li>
+          <li>Review app/templates/dashboard.html</li>
+          <li>Add a section in app/templates/dashboard.html display the signed in user's name</li>
+      </ul>
+    </div>
   </section>
 </div>
 {% block extra_js %}
@@ -47,17 +93,6 @@
   <script src="{% static 'js/readme_md_renderer.js' %}"></script>
 {% endblock %}
 {% block extra_css %}
-<style>
-    .pear-programmer-image {
-        max-height: 300px;
-        width: auto;
-    }
-    @media (max-width: 768px) {
-        .pear-programmer-image {
-            max-height: 200px;
-            width: auto;
-        }
-    }
-</style>
+<link rel="stylesheet" href="{% static 'css/homepage.css' %}" />
 {% endblock %}
 {% endblock %}

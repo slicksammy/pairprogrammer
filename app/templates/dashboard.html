@@ -33,7 +33,7 @@
         {% if api_keys|length < 2 %}
             <form method="post" action="/dashboard/api_key">
                 {% csrf_token %}
-                <button type="submit">Generate Key</button>
+                <button type="submit" class="btn btn-primary">Generate Key</button>
             </form>
         {% endif %}
     </div>
