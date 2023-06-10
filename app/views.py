@@ -99,7 +99,8 @@ class GenerateTokenView(LoginRequiredMixin, View):
 
 class VersionsView(View):
     def get(self, request):
-        project_versions = { 'cli': '0.1.0' }
+        latest_version = Interface.latest_version().version
+        project_versions = { 'cli': latest_version }
         return JsonResponse(project_versions)
     
 class ExceptionHandlerView(APIView):
