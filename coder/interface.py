@@ -75,6 +75,7 @@ class Interface:
             {output}
             """).strip()
             self.__append_message(content, role="user")
+            self.__log("output", output)
 
             # the second to last message is previously the last message, the system message
             # TODO this should happen on the run step in case user has feedback
@@ -84,6 +85,7 @@ class Interface:
 
     def append_user_message(self, content):
         self.__append_message(content, role="user")
+        self.__log("user message", content)
     
     def __delete_assistant_error(self):
         if self.messages[-1].message_content["role"] == "assistant" and self.messages[-1].message_content["error"]:
@@ -180,6 +182,7 @@ class Interface:
     def client_error(self, exception_class, exception_message):
         content = PromptInterface(self.version, self.coder).client_exception(exception_class, exception_message)
         self.__append_message(content, role="user", error=True)
+        self.__log("client error", content)
 
     def __log(self, name, content):
         print("*"*50)
