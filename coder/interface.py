@@ -133,8 +133,9 @@ class Interface:
                         parse_error_message = prompt_interface.parse_recovery_message(record)
                         self.__append_message(parse_error_message, role="user")
             except OpenAIError as e:
-                self.__log("openai error", e.args[0])
-                self.__append_message(e.args[0], role="assistant", error=True) # hack because when we call run this message will get deleted
+                message = f'message: {e.args[0]}\ncode: {e.code}'
+                self.__log("openai error", message)
+                self.__append_message(message, role="assistant", error=True) # hack because when we call run this message will get deleted
 
                 if e.code == 'context_length_exceeded':
                     self.coder.reached_max_length = True
