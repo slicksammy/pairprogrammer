@@ -33,4 +33,4 @@ class ClientVersion(models.Model):
     version = models.CharField(max_length=20, null=False)
     created_at = models.DateTimeField(default=timezone.now)
     updated_at = models.DateTimeField(auto_now=True)
-# INSERT INTO app_client_version (version, created_at, updated_at) VALUES ('0.1.3', NOW(), NOW()); 
+# INSERT INTO app_client_version (version, created_at, updated_at) VALUES ('0.1.5', NOW(), NOW()); 

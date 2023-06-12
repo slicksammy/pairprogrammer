@@ -135,6 +135,9 @@ class Interface:
             except OpenAIError as e:
                 self.__log("openai error", e.args[0])
                 self.__append_message(e.args[0], role="assistant", error=True) # hack because when we call run this message will get deleted
+
+                if e.code == 'context_length_exceeded':
+                    self.coder.reached_max_length = True
             finally:
                 self.coder.running_at = None
                 self.coder.save()
