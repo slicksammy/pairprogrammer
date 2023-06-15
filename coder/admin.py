@@ -6,7 +6,7 @@ from .interface import Interface
 
 @admin.register(Coder)
 class CoderAdmin(admin.ModelAdmin):
-    list_display = ("requirements", "tasks")
+    list_display = ("requirements", "tasks", "user")
 
     change_form_template = 'admin/coder/change_form.html'
 
@@ -15,6 +15,11 @@ class CoderAdmin(admin.ModelAdmin):
 
     def has_change_permission(self, request, obj=None):
         return request.user.is_staff
+
+    def get_queryset(self, request):
+        qs = super(CoderAdmin, self).get_queryset(request)
+
+        return qs.order_by('-created_at')
 
     def render_change_form(self, request, context, *args, **kwargs):
         coder = kwargs.get('obj')
