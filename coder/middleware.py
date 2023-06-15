@@ -14,12 +14,16 @@ class APIKeyAuthenticationMiddleware:
         return response
 
     def process_view(self, request, view_func, view_args, view_kwargs):
+        # Exit early if the request is for the admin dashboard
+        if request.path.startswith('/admin/'):
+            return None
+
         api_views = [CreateCoderView, AppendOutputView, RunCoderView, ListCoderView, CreateUserMessageView, AppendExceptionView, ClientException]
         # Need class based views for this to work
         # Configure which views need auth above
         if view_func.view_class not in api_views:
             return None
-        
+
         api_key = request.headers.get('Pairprogrammer-Api-Key')
         if not api_key:
             return JsonResponse({ 'error': "missing api key" }, status=status.HTTP_401_UNAUTHORIZED)

@@ -1,0 +1,22 @@
+{% extends 'admin/change_form.html' %}
+{% load humanize %}
+
+{% block after_related_objects %}
+    <div class="messages-section">
+        <h2>Messages</h2>
+        <ul>
+        {% for message in coder_messages %}
+            <li>
+            <span{% if message.role == 'assistant' %} style="background-color: #838300;"{% endif %}><strong>{{ message.role }}</strong></span>
+            {% if message.role == 'user' %}
+                <code>{{ message.content }}</code>
+            {% else %}
+                <code>{{ message.parsed }}</code>
+            {% endif %}
+            </li>
+        {% empty %}
+            <li>No messages</li>
+        {% endfor %}
+        </ul>
+    </div>
+{% endblock %}
