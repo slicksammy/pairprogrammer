@@ -12,6 +12,10 @@
                 <code>{{ message.content }}</code>
             {% else %}
                 <code>{{ message.parsed }}</code>
+                {% if message.parsed.command == "write_file" %}
+                    <br>
+                    <pre><code>{{ message.parsed.arguments.content }}</code></pre>
+                {% endif %}
             {% endif %}
             </li>
         {% empty %}
