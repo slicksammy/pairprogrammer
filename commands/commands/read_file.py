@@ -4,6 +4,23 @@ from django.conf import settings
 from commands.helpers import is_relative
 
 class ReadFile(Base):
+    @classmethod
+    def schema(cls):
+        return {
+            "name": "read_file",
+            "description": "read a file",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "file_path": {
+                        "type": "string",
+                        "description": "The path to the file to be read."
+                    }
+                },
+                "required": ["file_path"],
+            }
+        }
+
     def required_arguments(cls):
         return ["file_path"]
     

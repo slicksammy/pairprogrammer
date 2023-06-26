@@ -20,6 +20,7 @@ class Coder(models.Model):
 
     running_at = models.DateTimeField(null=True)
     reached_max_length = models.BooleanField(null=False, default=False)
+    error = models.JSONField(null=True)
 
 class ParsedResponse(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
@@ -29,3 +30,22 @@ class ParsedResponse(models.Model):
     parsed_response = models.JSONField()
     error = models.JSONField(null=True)
     parser = models.TextField(max_length=50, null=False)
+
+class CoderMessage(models.Model):
+    # name this coder_messages
+    class Meta:
+        db_table = 'coder_messages'
+
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    coder = models.ForeignKey(Coder, on_delete=models.CASCADE)
+    
+    role = models.CharField(max_length=50)
+    function_name = models.CharField(null=True,max_length=50)
+    content = models.TextField(null=True)
+    function_call = models.CharField(null=True, max_length=10000)
+
+    command = models.JSONField(null=True)
+    command_error = models.JSONField(null=True)
+
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)

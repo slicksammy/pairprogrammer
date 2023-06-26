@@ -4,6 +4,23 @@ from django.conf import settings
 from commands.helpers import is_relative
 
 class CreateFile(Base):
+    @classmethod
+    def schema(cls):
+        return {
+            "name": "create_file",
+            "description": "create a file",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "file_path": {
+                        "type": "string",
+                        "description": "The path to the file to be created."
+                    }
+                },
+                "required": ["file_path"],
+            }
+        }
+    
     def required_arguments(cls):
         return ["file_path"]
     

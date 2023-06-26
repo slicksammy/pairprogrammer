@@ -3,13 +3,16 @@ from coder.exceptions import InvalidAssistantResponseException, NotEnoughTokensE
 from commands.interface import Interface as CommandInterface
 from completions.interface import Interface as CompletionsInterface
 from app_messages.interface import Interface as MessagesInterface
-from .models import Coder
+from .models import Coder, CoderMessage
 import textwrap
 from planner.interface import Interface as PlannerInterface
 from coder.prompts.interface import Interface as PromptInterface
 from .prompts.interface import Interface as PromptInterface
 from app.models import User
 from openai.error import OpenAIError
+from .recipes.original import Original as OriginalRecipe
+from .recipes.function_call import FunctionCall as FunctionCallRecipe
+import traceback
 
 class Interface:
     @classmethod
@@ -33,22 +36,132 @@ class Interface:
             user_id=user_id
         )
 
-        prompt = PromptInterface(prompt_version, coder).prompt(context=context, tasks=tasks, requirements=requirements)
-        MessagesInterface(Coder, coder.id).create_message(
-            {
-                "role": "user",
-                "content": prompt,
-                "error": False,
-                "task": False,
-                "parsed": None
-            }
-        )
-
-        # create the first task message
-        instance = Interface(coder.id)
-        instance.__append_task_message()
+        FunctionCallRecipe(coder).after_create()
 
         return coder
+
+    # created
+    # running + running_at
+    # completion_api_error # when model call fails
+    # command_error # no command, invalid command, invalid command arguments
+    # command_success
+    # user_input
+    # command_output
+    # unknown_error
+    # completed
+    def run(self):
+        if self.coder.running_at is not None:
+            pass
+        
+        if self.coder.reached_max_length:
+            return
+
+        latest_message = CoderMessage.objects.filter(coder=self.coder).order_by('-created_at').first()
+        # command was successful, awaiting a response
+        if latest_message is not None and latest_message.command_error is None and latest_message.command is not None:
+            return
+        
+        self.coder.running_at = timezone.now()
+        self.coder.error = None
+        self.coder.save()
+        
+        try:
+            self.recipe(self.coder).before_run(latest_message)
+            
+            completion = self.recipe(self.coder).on_run()
+            if completion.context_length_exceeded:
+                self.coder.error = {
+                    "code": "reached_max_length"
+                }
+                self.coder.reached_max_length = True
+                self.coder.running_at = None
+                self.coder.save()
+                return
+            elif completion.error:
+                self.coder.error =  {
+                    "code": "completion_api_error"
+                }
+                self.coder.running_at = None
+                self.coder.save()
+                return
+            
+
+            message = self.recipe(self.coder).get_completion_message(completion)
+            command = self.recipe(self.coder).parse_command_from_message(message)
+
+            if command is None:
+                CoderMessage.objects.create(
+                    coder = self.coder,
+                    role = message["role"],
+                    function_name = message.get("name"),
+                    content = message.get("content"),
+                    function_call = message.get("function_call"),
+                    command = command,
+                    command_error = {
+                        "code": "missing_command"
+                    }
+                )
+                self.coder.error = {
+                    "code": "missing_command"
+                }
+            else:
+                the_command = command.get("command")
+                command_exists = CommandInterface.command_exists(the_command)
+                if not command_exists:
+                    CoderMessage.objects.create(
+                        coder = self.coder,
+                        role = message["role"],
+                        function_name = message.get("name"),
+                        content = message.get("content"),
+                        function_call = message.get("function_call"),
+                        command = command,
+                        command_error = {
+                            "code": "invalid_command"
+                        }
+                    )
+                    self.coder.error = {
+                        "code": "invalid_command"
+                    }
+                else:
+                    arguments = command.get("arguments")
+                    argument_validations = CommandInterface.validate_arguments(the_command, arguments)
+                    if len(argument_validations) > 0:
+                        CoderMessage.objects.create(
+                            coder = self.coder,
+                            role = message["role"],
+                            function_name = message.get("name"),
+                            content = message.get("content"),
+                            function_call = message.get("function_call"),
+                            command = command,
+                            command_error = {
+                                "code": "invalid_arguments",
+                                "validation_errors": argument_validations
+                            }
+                        )
+                        self.coder.error = {
+                            "code": "invalid_arguments"
+                        }
+                    else:
+                        CoderMessage.objects.create(
+                            coder = self.coder,
+                            role = message["role"],
+                            function_name = message.get("name"),
+                            content = message.get("content"),
+                            function_call = message.get("function_call"),
+                            command = command,
+                            command_error = None
+                        )
+
+        except Exception as e:
+            breakpoint()
+            self.coder.error = {
+                "code": "unknown"
+            }
+        finally:
+            self.coder.running_at = None
+            self.coder.save()
+
+    
 
     @classmethod
     def list(cls, user_id):
@@ -56,10 +169,11 @@ class Interface:
 
     def __init__(self, coder_id):
         self.coder = Coder.objects.get(id=coder_id)
-        self.messages = MessagesInterface(Coder, coder_id).list()
         self.version = "1"
         self.model = "gpt-4"
+        self.recipe = FunctionCallRecipe
 
+    # TODO update this
     def display_messages(self):
         for message in self.messages:
             print(message.message_content["role"])
@@ -68,186 +182,127 @@ class Interface:
                 print(message.message_content["parsed"])
             print(message.message_content["error"])
 
-    def append_output(self, output):
-        if self.messages[-1].message_content["role"] == "assistant" and self.messages[-1].message_content["error"] == False:
-            content = textwrap.dedent(f"""
-            Output:
-            {output}
-            """).strip()
-            self.__append_message(content, role="user")
-            self.__log("output", output)
-
-            # the second to last message is previously the last message, the system message
-            # TODO this should happen on the run step in case user has feedback
-            complete = self.messages[-2].message_content["parsed"]["complete"]
-            if complete:
-                self.__next_task()
+    def append_output(self, output, command):
+        latest_command_message = CoderMessage.objects.filter(coder=self.coder, command__isnull=False, command_error__isnull=True).latest('created_at')
+        # latest command message is getting passed here because first the user submits the otuput then we can check if the original task was completed
+        self.recipe(self.coder).on_function_call(output, command, latest_command_message)
 
     def append_user_message(self, content):
-        self.__append_message(content, role="user")
-        self.__log("user message", content)
+        CoderMessage.objects.create(
+            coder=self.coder,
+            role="user",
+            function_name=None,
+            content=content,
+            function_call=None
+        )
     
-    def __delete_assistant_error(self):
-        if self.messages[-1].message_content["role"] == "assistant" and self.messages[-1].message_content["error"]:
-                # TODO move to interface and do not delete, need to archive
-            self.messages[-1].delete()
-         
-        return True
-    
-    def run(self):
-        if self.coder.running_at:
-            return
-        elif self.coder.reached_max_length:
-            return
-        else: 
-            self.__delete_assistant_error() # if there was an issue before we could add an exception message to the conversation lets delete the previous message and try again
-            if self.messages[-1].message_content["role"] == "assistant" and self.messages[-1].message_content["parsed"] is not None: # client has not responded yet so send back original command
-                return
-            try:
-                self.__log("running", "started")
-                self.coder.running_at = timezone.now()
-                self.coder.save()
-                completion_interface = self.__run_completion(self.model)
-                content = completion_interface.content()
-                self.__log("response", content)
-                if completion_interface.reached_max_length():
-                    self.__append_message(content, role="assistant")
-                    self.coder.reached_max_length = True # if it reached max length the response is probably not parsable
-                else:
-                    prompt_interface = PromptInterface(self.version, self.coder)
-                    record = prompt_interface.parse_response(content)
-                    parsed = record.parsed_response
-                    self.__append_message(content, role="assistant", parsed=parsed)
-                    if record.error is None:
-                        self.__log("parsed", parsed)
-                        if parsed.get("command"): # sometimes it might just be a comment
-                            command_exists = CommandInterface.command_exists(parsed["command"])
-                            if not command_exists:
-                                self.__mark_previous_message_as_error()
-                                self.__append_invalid_command(parsed["command"])
-                            # TODO try to fix some arguments here, for example when command is "comment" and there are no arguments but there is an explanation
-                            argument_validations = CommandInterface.validate_arguments(parsed["command"], parsed["arguments"])
-                            if len(argument_validations) > 0:
-                                self.__mark_previous_message_as_error()
-                                self.__append_argument_validations(argument_validations)
-                    else:
-                        self.__mark_previous_message_as_error()
-                        parse_error_message = prompt_interface.parse_recovery_message(record)
-                        self.__append_message(parse_error_message, role="user")
-            except OpenAIError as e:
-                message = f'message: {e.args[0]}\ncode: {e.code}'
-                self.__log("openai error", message)
-                self.__append_message(message, role="assistant", error=True) # hack because when we call run this message will get deleted
-
-                if e.code == 'context_length_exceeded':
-                    self.coder.reached_max_length = True
-            finally:
-                self.coder.running_at = None
-                self.coder.save()
-
     def status(self):
         if self.coder.running_at:
             return {
                 "running": True,
                 "running_at": self.coder.running_at,
-                # "running_for": timezone.now() - self.coder.running_at
             }
         else:
-            last_assistant_message = self.__last_assistant_message()
+            latest_message = CoderMessage.objects.filter(coder=self.coder).order_by('-created_at').first()
+
             return {
                 "running": False,
-                "error": last_assistant_message is not None and last_assistant_message.message_content["error"],
-                "system_message": self.__current_assistant_message(),
+                "error": self.coder.error is not None,
+                "system_message": latest_message.command if latest_message.command_error is None else None,
                 "reached_max_length": self.coder.reached_max_length,
-                "availabe_tokens": CompletionsInterface.available_completion_tokens(self.messages, self.model)
+                "availabe_tokens": 1000 #CompletionsInterface.available_completion_tokens(self.messages, self.model)
             }
 
     # this message we send back to the client until we receive a response
-    def __current_assistant_message(self):
-        if (self.messages[-1].message_content["role"] == "assistant") and not(self.messages[-1].message_content["error"]):
-            return self.messages[-1].message_content["parsed"]
+    # def __current_assistant_message(self):
+    #     if (self.messages[-1].message_content["role"] == "assistant") and not(self.messages[-1].message_content["error"]):
+    #         return self.messages[-1].message_content["parsed"]
         
-    def __last_assistant_message(self):
-        return next((message for message in reversed(self.messages) if message.message_content.get("role") == "assistant"), None)
+    # def __last_assistant_message(self):
+    #     return next((message for message in reversed(self.messages) if message.message_content.get("role") == "assistant"), None)
 
-    def current_task(self):
-        return self.coder.tasks[self.coder.current_task_index]
+    # def current_task(self):
+    #     return self.coder.tasks[self.coder.current_task_index]
     
-    def complete(self):
-        return self.coder.complete
+    # def complete(self):
+    #     return self.coder.complete
 
-    def skip_task(self):
-        self.__next_task()
+    # def skip_task(self):
+    #     self.__next_task()
 
     def client_error(self, exception_class, exception_message):
-        content = PromptInterface(self.version, self.coder).client_exception(exception_class, exception_message)
-        self.__append_message(content, role="user", error=True)
-        self.__log("client error", content)
+        CoderMessage.objects.create(
+            coder=self.coder,
+            role="user",
+            function_name=None,
+            content=f'unexpected exception {exception_class} {exception_message}',
+            function_call=None
+        )
 
-    def __log(self, name, content):
-        print("*"*50)
-        print(f"{name}")
-        print(content)
-        print("*"*50)
+    # def __log(self, name, content):
+    #     print("*"*50)
+    #     print(name)
+    #     print(content)
+    #     print("*"*50)
 
-    def __append_response_exception(self, e):
-        content = textwrap.dedent(f"""
-        Could not parse your response due to:
-        {e.args[0]}
-        Please try again following the response format
-        """).strip()
+    # def __append_response_exception(self, e):
+    #     content = textwrap.dedent(f"""
+    #     Could not parse your response due to:
+    #     {e.args[0]}
+    #     Please try again following the response format
+    #     """).strip()
         
-        self.__append_message(content, role="user", error=True)
+    #     self.__append_message(content, role="user", error=True)
 
-    def __append_invalid_command(self, command):
-        content = textwrap.dedent(f"""
-        {command} is not a valid command
-        """).strip()
+    # def __append_invalid_command(self, command):
+    #     content = textwrap.dedent(f"""
+    #     {command} is not a valid command
+    #     """).strip()
         
-        self.__append_message(content, role="user")
+    #     self.__append_message(content, role="user")
 
-    def __append_argument_validations(self, validation_errors):
-        content = textwrap.dedent(f"""
-        The arguments you provided have the following validation errors:
-        {validation_errors}
-        Please try again with the proper arguments
-        """).strip()
+    # def __append_argument_validations(self, validation_errors):
+    #     content = textwrap.dedent(f"""
+    #     The arguments you provided have the following validation errors:
+    #     {validation_errors}
+    #     Please try again with the proper arguments
+    #     """).strip()
         
-        self.__append_message(content, role="user")
+    #     self.__append_message(content, role="user")
 
-    def __mark_previous_message_as_error(self):
-        message = self.messages[-1]
-        message.message_content["error"] = True
-        # TODO this should be in the messages interface
-        message.save()
+    # def __mark_previous_message_as_error(self):
+    #     message = self.messages[-1]
+    #     message.message_content["error"] = True
+    #     # TODO this should be in the messages interface
+    #     message.save()
 
-    # TODO configure model on coder instance
-    def __run_completion(self, model):
-        formatted_messages = [{ "content": message.message_content["content"], "role": message.message_content["role"] } for message in self.messages]
-        # TODO rescue openai.error.APIError: Bad gateway
-        # openai.error.RateLimitError
-        return CompletionsInterface.create_completion(Coder, self.coder.id, formatted_messages, model)
+    # # TODO configure model on coder instance
+    # def __run_completion(self, model):
+    #     formatted_messages = [{ "content": message.message_content["content"], "role": message.message_content["role"] } for message in self.messages]
+    #     # TODO rescue openai.error.APIError: Bad gateway
+    #     # openai.error.RateLimitError
+    #     return CompletionsInterface.create_completion(Coder, self.coder.id, formatted_messages, model)
     
-    def __append_message(self, content, role="user", parsed=None, error=False, task=False):
-        message_interface = MessagesInterface(Coder, self.coder.id)
-        new_message = message_interface.create_message({ "role": role, "content": content, "error": error, "task": task, "parsed": parsed })
-        self.messages.append(new_message)
+    # def __append_message(self, content, role="user", parsed=None, error=False, task=False):
+    #     message_interface = MessagesInterface(Coder, self.coder.id)
+    #     new_message = message_interface.create_message({ "role": role, "content": content, "error": error, "task": task, "parsed": parsed })
+    #     self.messages.append(new_message)
 
-    def __append_task_message(self):
-        task = self.coder.tasks[self.coder.current_task_index]
-        content = textwrap.dedent(f"""
-        TASK: {task}
-        """).strip()
+    # def __append_task_message(self):
+    #     task = self.coder.tasks[self.coder.current_task_index]
+    #     content = textwrap.dedent(f"""
+    #     TASK: {task}
+    #     """).strip()
         
-        self.__append_message(content, role="user", error=False, task=True)
+    #     self.__append_message(content, role="user", error=False, task=True)
 
-    def __next_task(self):
-        if self.coder.current_task_index == len(self.coder.tasks) - 1:
-            self.coder.complete = True
-            self.coder.save()
-            return False
-        else:
-            self.coder.current_task_index += 1
-            self.coder.save()
-            self.__append_task_message()
-            return True
+    # def __next_task(self):
+    #     if self.coder.current_task_index == len(self.coder.tasks) - 1:
+    #         self.coder.complete = True
+    #         self.coder.save()
+    #         return False
+    #     else:
+    #         self.coder.current_task_index += 1
+    #         self.coder.save()
+    #         self.__append_task_message()
+    #         return True

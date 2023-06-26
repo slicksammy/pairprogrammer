@@ -4,6 +4,27 @@ import os
 from commands.helpers import is_relative
 
 class WriteFile(Base):
+    @classmethod
+    def schema(cls):
+        return {
+            "name": "write_file",
+            "description": "writes content to a file",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "file_path": {
+                        "type": "string",
+                        "description": "The path to the file to be read."
+                    },
+                    "content": {
+                        "type": "string",
+                        "description": "the contents of the file"
+                    }
+                },
+                "required": ["file_path", "content"],
+            }
+        }
+    
     def required_arguments(cls):
         return ["file_path", "content"]
 
