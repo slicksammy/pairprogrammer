@@ -153,7 +153,6 @@ class Interface:
                         )
 
         except Exception as e:
-            breakpoint()
             self.coder.error = {
                 "code": "unknown"
             }

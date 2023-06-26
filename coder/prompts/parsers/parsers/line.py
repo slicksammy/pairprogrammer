@@ -35,7 +35,6 @@ class Line:
                 arguments = {}
                 i += 1
                 while i < len(lines) and not lines[i].startswith('EXPLANATION:'):
-                    breakpoint()
                     key, value = lines[i].split(': ', maxsplit=1)
                     arguments[key.strip()] = value.strip().strip('"').strip("`").encode().decode('unicode_escape') #.strip("'").replace("\\n", "\n") # because linebreaks are separators, the api will return \\n indicating it to not be a line break
                     i += 1

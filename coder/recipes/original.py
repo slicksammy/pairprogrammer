@@ -150,8 +150,6 @@ class Original:
                 }
         """.replace("<<CONTEXT>>", self.coder.context).replace("<<REQUIREMENTS>>", self.coder.requirements).replace("<<TASKS>>", "\n".join(self.coder.tasks))
 
-        breakpoint()
-
         CoderMessage.objects.create(
             coder = self.coder,
             role = "user",
