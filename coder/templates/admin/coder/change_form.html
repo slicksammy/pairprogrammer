@@ -5,17 +5,22 @@
     <div class="messages-section">
         <h2>Messages</h2>
         <ul>
-        {% for message in coder_messages %}
+        {% for coder_message in coder_messages %}
             <li>
-            <span{% if message.role == 'assistant' %} style="background-color: #838300;"{% endif %}><strong>{{ message.role }}</strong></span>
-            {% if message.role == 'user' %}
-                <code>{{ message.content }}</code>
-            {% else %}
-                <code>{{ message.parsed }}</code>
-                {% if message.parsed.command == "write_file" %}
-                    <br>
-                    <pre><code>{{ message.parsed.arguments.content }}</code></pre>
+            <span{% if coder_message.role == 'assistant' %} style="background-color: #838300;"{% endif %}><strong>{{ coder_message.role }}</strong></span>
+            {% if coder_message.role == 'user' %}
+                <code>{{ coder_message.content }}</code>
+            {% elif coder_message.role == 'function' %}
+                <code>{{ coder_message.function_name }}</code>
+                <code>{{ coder_message.content }}</code>
+            {% elif coder_message.command is not None %}
+                <code>{{ coder_message.command.command }}</code>
+                <code>{{ coder_message.command.arguments }}</code>
+                {% if coder_message.command.command == "write_file" %}
+                    <pre style="background-color: #5e5e5e"><code >{{ coder_message.command.arguments.content }}</code></pre>
                 {% endif %}
+            {% else %}
+                <code>{{ coder_message }}</code>
             {% endif %}
             </li>
         {% empty %}
