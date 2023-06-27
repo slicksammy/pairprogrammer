@@ -76,6 +76,7 @@ class Interface:
                 self.coder.reached_max_length = True
                 self.coder.running_at = None
                 self.coder.save()
+                self.__log(name="context length exceeded")
                 return
             elif completion.error:
                 self.coder.error =  {
@@ -83,11 +84,13 @@ class Interface:
                 }
                 self.coder.running_at = None
                 self.coder.save()
+                self.__log(name="llm api error")
                 return
             
 
             message = self.recipe(self.coder).get_completion_message(completion)
             command = self.recipe(self.coder).parse_command_from_message(message)
+            self.__log(name="command generated", content=command)
 
             if command is None:
                 CoderMessage.objects.create(
@@ -104,6 +107,7 @@ class Interface:
                 self.coder.error = {
                     "code": "missing_command"
                 }
+                self.__log(name="missing command")
             else:
                 the_command = command.get("command")
                 command_exists = CommandInterface.command_exists(the_command)
@@ -122,6 +126,7 @@ class Interface:
                     self.coder.error = {
                         "code": "invalid_command"
                     }
+                    self.__log(name="invalid command")
                 else:
                     arguments = command.get("arguments")
                     argument_validations = CommandInterface.validate_arguments(the_command, arguments)
@@ -141,6 +146,7 @@ class Interface:
                         self.coder.error = {
                             "code": "invalid_arguments"
                         }
+                        self.__log(name="invalid arguments")
                     else:
                         CoderMessage.objects.create(
                             coder = self.coder,
@@ -151,11 +157,13 @@ class Interface:
                             command = command,
                             command_error = None
                         )
+                        self.__log(name="successful command")
 
         except Exception as e:
             self.coder.error = {
                 "code": "unknown"
             }
+            self.__log(name="exception", content=traceback.format_exc())
         finally:
             self.coder.running_at = None
             self.coder.save()
@@ -238,11 +246,11 @@ class Interface:
             function_call=None
         )
 
-    # def __log(self, name, content):
-    #     print("*"*50)
-    #     print(name)
-    #     print(content)
-    #     print("*"*50)
+    def __log(self, name, content=None):
+        print("*"*50)
+        print(name)
+        print(content)
+        print("*"*50)
 
     # def __append_response_exception(self, e):
     #     content = textwrap.dedent(f"""
