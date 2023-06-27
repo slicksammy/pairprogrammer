@@ -5,7 +5,7 @@ from app_messages.interface import Interface as MessagesInterface
 from json.decoder import JSONDecodeError
 from coder.models import CoderMessage
 import textwrap
-from commands.commands import ReadFile, WriteFile, Rails, CreateFile, CreateDirectory
+from commands.commands import ReadFile, WriteFile, Rails, CreateFile, CreateDirectory, Python
 
 class FunctionCall:
     def __init__(self, coder, config):
@@ -112,7 +112,7 @@ class FunctionCall:
                 )
 
         # TODO get functions
-        functions = [ReadFile.schema(), WriteFile.schema(), Rails.schema(), CreateFile.schema(), CreateDirectory.schema()]
+        functions = [ReadFile.schema(), WriteFile.schema(), Rails.schema(), CreateFile.schema(), CreateDirectory.schema(), Python.schema()]
         return CompletionsInterface.create_completion(self.coder.id, messages, self.model, functions, function_call="auto") #gpt-3.5-turbo-16k-0613
 
     def get_completion_message(self, completion):
