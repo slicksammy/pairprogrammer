@@ -15,6 +15,7 @@ from .recipes.function_call import FunctionCall as FunctionCallRecipe
 import traceback
 from app.models import UserPreference
 from .recipe import Recipe
+import json
 
 class Interface:
     @classmethod
@@ -66,19 +67,32 @@ class Interface:
         if self.coder.reached_max_length:
             return
 
-        latest_message = CoderMessage.objects.filter(coder=self.coder).order_by('-created_at').first()
-        # command was successful, awaiting a response
-        if latest_message is not None and latest_message.command_error is None and latest_message.command is not None:
-            return
-        
         self.coder.running_at = timezone.now()
         self.coder.error = None
         self.coder.save()
+        latest_message = CoderMessage.objects.filter(coder=self.coder).order_by('-created_at').first()
+        # command was successful, awaiting a response
+        if latest_message is not None and latest_message.command_error is None and latest_message.command is not None:
+            if latest_message.system_command:
+                command = latest_message.command["command"]
+                arguments = latest_message.command["arguments"]
+                
+                self.__log(f'running system command - {command}', arguments)
+
+                output = CommandInterface.run_system_command(command, arguments, self.user)
+                self.recipe.on_function_call(output, command)
+
+                self.__log(f'system command output', output)
+            
+            self.coder.running_at = None
+            self.coder.save()
+            
+            return
         
         try:
             self.recipe.before_run(latest_message)
             
-            completion = self.recipe.on_run()
+            completion = self.recipe.on_run(self.user)
             if completion.context_length_exceeded:
                 self.coder.error = {
                     "code": "reached_max_length"
@@ -140,6 +154,7 @@ class Interface:
                 else:
                     arguments = command.get("arguments")
                     argument_validations = CommandInterface.validate_arguments(the_command, arguments)
+                    system_command = CommandInterface.is_system_command(the_command)
                     if len(argument_validations) > 0:
                         CoderMessage.objects.create(
                             coder = self.coder,
@@ -151,7 +166,8 @@ class Interface:
                             command_error = {
                                 "code": "invalid_arguments",
                                 "validation_errors": argument_validations
-                            }
+                            },
+                            system_command=system_command
                         )
                         self.coder.error = {
                             "code": "invalid_arguments"
@@ -165,7 +181,8 @@ class Interface:
                             content = message.get("content"),
                             function_call = message.get("function_call"),
                             command = command,
-                            command_error = None
+                            command_error = None,
+                            system_command=system_command
                         )
                         self.__log(name="successful command")
 
@@ -190,6 +207,7 @@ class Interface:
         klass = recipe["recipe_class"]
         config = recipe["config"]
         self.recipe = klass(self.coder, config)
+        self.user = self.coder.user
 
     # TODO update this
     def display_messages(self):
@@ -200,10 +218,10 @@ class Interface:
                 print(message.message_content["parsed"])
             print(message.message_content["error"])
 
-    def append_output(self, output, command):
+    def append_output(self, output, command_name):
         latest_command_message = CoderMessage.objects.filter(coder=self.coder, command__isnull=False, command_error__isnull=True).latest('created_at')
         # latest command message is getting passed here because first the user submits the otuput then we can check if the original task was completed
-        self.recipe.on_function_call(output, command, latest_command_message)
+        self.recipe.on_function_call(output, command_name)
 
     def append_user_message(self, content):
         CoderMessage.objects.create(
@@ -226,7 +244,7 @@ class Interface:
             return {
                 "running": False,
                 "error": self.coder.error is not None,
-                "system_message": latest_message.command if latest_message.command_error is None else None,
+                "system_message": latest_message.command if latest_message.command_error is None and not latest_message.system_command else None,
                 "reached_max_length": self.coder.reached_max_length,
                 "availabe_tokens": 1000 #CompletionsInterface.available_completion_tokens(self.messages, self.model)
             }

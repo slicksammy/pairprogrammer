@@ -1,54 +1,56 @@
 from qdrant_client import QdrantClient
 from qdrant_client.http import models
 import uuid
-import json
+from completions.interface import Interface as CompletionInterface
+import pinecone
+import hashlib
 
-class CollectionAlreadyExistsException(BaseException):
-        pass
-
-class VectorCollection:
-    def __init__(self, collection_name):
-        self.collection_name = collection_name
+pinecone.init(api_key="a7854fb2-c72a-4de6-bf99-2c80c77e564c", environment="us-west1-gcp")
 
 class Interface:
-    @classmethod
-    def collection_exists(cls, collection_name):
-        client = QdrantClient(host='localhost', port=6333)
-        collections = client.get_collections().collections
-        return any(c.name == collection_name for c in collections)
 
     @classmethod
-    def create_collection(cls, collection_name):
-        if cls.collection_exists(collection_name):
-            raise CollectionAlreadyExistsException("Collection already exists")
-        else:
-            client = QdrantClient(host='localhost', port=6333)
-            return client.recreate_collection(
-                collection_name=collection_name,
-                vectors_config=models.VectorParams(size=1536, distance=models.Distance.COSINE),
-            )           
+    def embed(cls, content, user):
+        completion = CompletionInterface.create_completion(
+            user=user,
+            use_case="embedding",
+            model="text-embedding-ada-002",
+            messages=content
+        )
+        return CompletionInterface(completion=completion).message
         
-    def __init__(self, collection_name):
-        self.collection = VectorCollection(collection_name)
-        self.client = QdrantClient(host='localhost', port=6333)
+    def __init__(self, user):
+        self.user = user
+
+        md5_hash = hashlib.md5()
+        # TODO separate prod from dev in case of overlap
+        md5_hash.update(f'{self.user.username}{self.user.date_joined}'.encode('utf-8'))
+        
+        self.namespace = md5_hash.hexdigest()
 
     def add_point(self, vector, payload):
-        self.client.upsert(
-            collection_name=self.collection.collection_name,
-            points = [
-                models.PointStruct(
-                    id=str(uuid.uuid4()),
-                    vector=vector,
-                    payload=payload
+        index = pinecone.Index("pear")
+        
+        index.upsert(
+            vectors=[
+                (
+                    str(uuid.uuid4()),
+                    vector,
+                    payload,
                 )
-            ]
+            ],
+            namespace=self.namespace
         )
+
+        return True
     
     def search(self, vector, limit=3):
-        return self.client.search(
-            collection_name=self.collection.collection_name,
-            query_vector=vector,
-            limit=limit,
-            with_payload=True,
+        index = pinecone.Index("pear")
+
+        return index.query(
+            namespace=self.namespace,
+            top_k=limit,
+            include_values=False,
+            include_metadata=True,
+            vector=vector,
         )
-        

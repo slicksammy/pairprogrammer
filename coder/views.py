@@ -52,9 +52,9 @@ class AppendOutputView(ExceptionHandlerView):
         data = request.data
         id = data["id"]
         output = data["output"]
-        command = data.get("command")
+        command_name = data.get("command")
         interface = Interface(id)
-        interface.append_output(output, command)
+        interface.append_output(output, command_name)
         return Response(status=status.HTTP_200_OK)
     
 class ListCoderView(ExceptionHandlerView):

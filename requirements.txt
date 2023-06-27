@@ -9,3 +9,4 @@ djangorestframework==3.14.0
 dj_database_url
 gunicorn
 whitenoise
+pinecone-client

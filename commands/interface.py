@@ -19,7 +19,9 @@ class Interface:
         "ls": Ls,
         "python": Python,
         "mv": Mv,
-        "yarn": Yarn
+        "yarn": Yarn,
+        "recall": Recall,
+        "remember": Remember
     }
 
     @classmethod
@@ -42,6 +44,20 @@ class Interface:
                 validations[argument] = errors
             
         return validations
+    
+    @classmethod
+    def is_system_command(cls, command):
+        command_class = cls.COMMANDS[command]
+        return command_class.is_system()
+
+    @classmethod
+    def run_system_command(cls, command, arguments, user):
+        command_class = cls.COMMANDS[command]
+        if not command_class.is_system():
+            raise Exception("Not a system command")
+        
+        return command_class.run(arguments, user)
+
     
 
     # def exec_command(self, command, arguments):

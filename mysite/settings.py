@@ -68,7 +68,8 @@ INSTALLED_APPS = [
     'commands',
     'planner',
     'completions',
-    'app'
+    'app',
+    'vectordb'
 ]
 
 MIDDLEWARE = [

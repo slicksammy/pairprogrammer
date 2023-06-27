@@ -48,6 +48,7 @@ class CoderMessage(models.Model):
 
     command = models.JSONField(null=True)
     command_error = models.JSONField(null=True)
+    system_command = models.BooleanField(default=False)
 
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)

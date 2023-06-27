@@ -15,3 +15,7 @@ class Base:
      
     def custom_validations(self):
         return {}
+    
+    @classmethod
+    def is_system(self):
+        return False

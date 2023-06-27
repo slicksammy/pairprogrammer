@@ -15,3 +15,5 @@ from .ls import Ls
 from .python import Python
 from .mv import Mv
 from .yarn import Yarn
+from .recall import Recall
+from .remember import Remember

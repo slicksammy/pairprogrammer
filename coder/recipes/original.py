@@ -205,11 +205,11 @@ class Original:
         # if last_message.command and last_message.command.get("complete"):
         #     next_task = coder.current_task_index + 1
 
-    def on_run(self):
+    def on_run(self, user):
         messages = CoderMessage.objects.filter(coder=self.coder).order_by("created_at")
         messages = [{ "role": message.role, "content": message.content } for message in messages]
         
-        return CompletionsInterface.create_completion(self.coder.id, messages, "gpt-4")
+        return CompletionsInterface.create_completion(user=user, use_case="coder_completion", messages=messages, model="gpt-4")
 
     def get_completion_message(self, completion):
         return completion.message

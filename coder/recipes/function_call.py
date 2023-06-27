@@ -5,7 +5,7 @@ from app_messages.interface import Interface as MessagesInterface
 from json.decoder import JSONDecodeError
 from coder.models import CoderMessage
 import textwrap
-from commands.commands import ReadFile, WriteFile, Rails, CreateFile, CreateDirectory, Python
+from commands.commands import ReadFile, WriteFile, Rails, CreateFile, CreateDirectory, Python, Remember, Recall
 
 class FunctionCall:
     def __init__(self, coder, config):
@@ -64,11 +64,11 @@ class FunctionCall:
                     function_call = None
                 )
 
-    def on_function_call(self, output, command, last_message):
+    def on_function_call(self, output, command_name):
         CoderMessage.objects.create(
             coder=self.coder,
             role="function",
-            function_name=command,
+            function_name=command_name,
             content=output,
             function_call=None
         )
@@ -76,7 +76,7 @@ class FunctionCall:
         # if last_message.command and last_message.command.get("complete"):
         #     next_task = coder.current_task_index + 1
 
-    def on_run(self):
+    def on_run(self, user):
         messages = []
         for message in CoderMessage.objects.filter(coder=self.coder).order_by("created_at"):
             if message.role == "user":
@@ -112,8 +112,8 @@ class FunctionCall:
                 )
 
         # TODO get functions
-        functions = [ReadFile.schema(), WriteFile.schema(), Rails.schema(), CreateFile.schema(), CreateDirectory.schema(), Python.schema()]
-        return CompletionsInterface.create_completion(self.coder.id, messages, self.model, functions, function_call="auto") #gpt-3.5-turbo-16k-0613
+        functions = [ReadFile.schema(), WriteFile.schema(), Rails.schema(), CreateFile.schema(), CreateDirectory.schema(), Python.schema(), Remember.schema(), Recall.schema()]
+        return CompletionsInterface.create_completion(user=user, use_case="coder_completion", messages=messages, model=self.model, functions=functions, function_call="auto") #gpt-3.5-turbo-16k-0613
 
     def get_completion_message(self, completion):
         return completion.message
