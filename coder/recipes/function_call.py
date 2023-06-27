@@ -8,8 +8,9 @@ import textwrap
 from commands.commands import ReadFile, WriteFile, Rails, CreateFile, CreateDirectory
 
 class FunctionCall:
-    def __init__(self, coder):
+    def __init__(self, coder, config):
         self.coder = coder
+        self.model = config["model"]
 
     def after_create(self):
         content =  """
@@ -112,7 +113,7 @@ class FunctionCall:
 
         # TODO get functions
         functions = [ReadFile.schema(), WriteFile.schema(), Rails.schema(), CreateFile.schema(), CreateDirectory.schema()]
-        return CompletionsInterface.create_completion(self.coder.id, messages, "gpt-4-0613", functions, function_call="auto") #gpt-3.5-turbo-16k-0613
+        return CompletionsInterface.create_completion(self.coder.id, messages, self.model, functions, function_call="auto") #gpt-3.5-turbo-16k-0613
 
     def get_completion_message(self, completion):
         return completion.message

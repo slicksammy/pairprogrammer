@@ -2,6 +2,7 @@ from django.db import models
 from django.contrib.auth.models import User
 import uuid
 
+
 # Create your models here.
 class Coder(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
@@ -12,6 +13,7 @@ class Coder(models.Model):
     # max length set to random number
     requirements = models.CharField(null=False, max_length=2000)
     context = models.CharField(null=False, max_length=2000)
+    recipe = models.CharField(null=True, max_length=50)
 
     complete = models.BooleanField(default=False)
 

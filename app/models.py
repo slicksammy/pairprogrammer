@@ -9,7 +9,6 @@ class UserApiKey(models.Model):
     created_at = models.DateTimeField(default=timezone.now)
     updated_at = models.DateTimeField(auto_now=True)
 
-
 class ClientUsage(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, null=False)
     client_version = models.CharField(max_length=20, null=False)
@@ -33,4 +32,20 @@ class ClientVersion(models.Model):
     version = models.CharField(max_length=20, null=False)
     created_at = models.DateTimeField(default=timezone.now)
     updated_at = models.DateTimeField(auto_now=True)
-# INSERT INTO app_client_version (version, created_at, updated_at) VALUES ('0.1.5', NOW(), NOW()); 
+# INSERT INTO app_client_version (version, created_at, updated_at) VALUES ('0.1.9', NOW(), NOW());
+
+class ExternalApiKey(models.Model):
+    class Meta:
+        db_table = 'app_external_api_keys'
+
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    service_name = models.CharField(max_length=100)  # like 'OpenAI'
+    api_key = models.CharField(max_length=255)
+    created_at = models.DateTimeField(default=timezone.now)
+    updated_at = models.DateTimeField(auto_now=True)
+
+class UserPreference(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    preferences = models.JSONField(null=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)

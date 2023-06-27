@@ -1,3 +1,4 @@
+
 from django.urls import path
 from . import views
 from django.contrib.auth import views as auth_views
@@ -10,5 +11,7 @@ urlpatterns = [
     path('dashboard/', views.DashboardView.as_view(), name='dashboard'),
     path('dashboard/api_key', views.GenerateTokenView.as_view(), name='generate-api-key'),
     path('api/v1/versions', views.VersionsView.as_view(), name='versions'),
-    path('api/v1/client_exception', views.ClientException.as_view(), name='client_exception')
+    path('api/v1/client_exception', views.ClientException.as_view(), name='client_exception'),
+    path('dashboard/api_key/add_external', views.AddExternalApiKeyView.as_view(), name='add_external_api_key'),
+    path('dashboard/update_preferences', views.UpdateUserPreferencesView.as_view(), name='update_preferences'),  # new route
 ]

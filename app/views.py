@@ -8,7 +8,7 @@ from django.contrib.auth.decorators import login_required
 from django.views import View
 from app.authentication.email_backend import EmailBackend
 from .forms import CustomUserCreationForm
-from .models import UserApiKey, ClientUsage
+from .models import UserApiKey, ClientUsage, ExternalApiKey, UserPreference
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.conf import settings
 from django.http import JsonResponse
@@ -44,6 +44,7 @@ class SignupView(View):
         
         if form.is_valid():
             user = form.save()
+            UserPreference.objects.create(user=user, preferences={ "model": "gpt-4-0613" })
             login(request, user)
             return redirect('dashboard')
         else:
@@ -79,7 +80,10 @@ class DashboardView(LoginRequiredMixin, View):
 
     def get(self, request):
         api_keys = UserApiKey.objects.filter(user=request.user)
-        return render(request, 'dashboard.html', {'api_keys': api_keys, 'user': request.user})
+        external_api_keys = ExternalApiKey.objects.filter(user=request.user)
+        user_preference = UserPreference.objects.get(user=request.user)
+        user_preference_keys = ['model']
+        return render(request, 'dashboard.html', {'api_keys': api_keys, 'external_api_keys': external_api_keys, 'user': request.user, 'user_preference': user_preference, 'user_preference_keys': user_preference_keys})
 
 
 class GenerateTokenView(LoginRequiredMixin, View):
@@ -123,3 +127,34 @@ class ClientException(APIView):
         usage = ClientUsage(user_id=user_id,command=command, exception_class=exception_class, exception_message=exception_message, exception_backtrace=exception_backtrace, client_version=version)
         usage.save()
         return Response(status=status.HTTP_200_OK)
+
+class AddExternalApiKeyView(LoginRequiredMixin, View):
+    login_url = '/login'
+
+    def post(self, request):
+        api_key = request.POST.get('api_key')
+        service = request.POST.get('service')
+        if api_key and service:
+            new_key = ExternalApiKey(user=request.user, service_name=service, api_key=api_key)
+            new_key.save()
+            messages.success(request, 'External API key added successfully')
+        else:
+            messages.error(request, 'No API key or Service provided')
+        return redirect('dashboard')
+
+class UpdateUserPreferencesView(LoginRequiredMixin, View):
+    login_url = '/login'
+
+    def post(self, request):
+        # Query for the existing UserPreference for the current user
+        user_preference = UserPreference.objects.get(user=request.user)
+
+        # Update the user preferences with the form data
+        fields = ['model']
+        form_data = {field: request.POST.get(field) for field in fields}
+        user_preference.preferences = form_data
+        user_preference.save()
+
+        # Redirect back to the dashboard with a success message
+        messages.success(request, 'Preferences updated successfully')
+        return redirect('dashboard')

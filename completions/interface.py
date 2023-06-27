@@ -24,6 +24,11 @@ class Interface:
 
     @classmethod
     def create_completion(cls, coder_id, messages, model, functions=None, function_call="auto"):
+        print("*"*50)
+        print("running completion")
+        print(model)
+        print("*"*50)
+
         try:
             response = None
             if functions is not None:

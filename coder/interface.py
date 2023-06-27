@@ -13,6 +13,8 @@ from openai.error import OpenAIError
 from .recipes.original import Original as OriginalRecipe
 from .recipes.function_call import FunctionCall as FunctionCallRecipe
 import traceback
+from app.models import UserPreference
+from .recipe import Recipe
 
 class Interface:
     @classmethod
@@ -27,16 +29,24 @@ class Interface:
 
     @classmethod
     def create_coder(cls, tasks, requirements, context, user_id, prompt_version="1"):
+        user_preference = UserPreference.objects.get(user_id=user_id)
+
+        recipe = 'gpt-4-0613' if user_preference.preferences.get("model") == 'gpt-4-0613' else 'gpt-3.5-turbo-0613'
+
         coder = Coder.objects.create(
             tasks=tasks,
             requirements=requirements,
             context=context,
             current_task_index=0,
             complete=False,
-            user_id=user_id
+            user_id=user_id,
+            recipe=recipe
         )
 
-        FunctionCallRecipe(coder).after_create()
+        recipe = Recipe.get(recipe)
+        klass = recipe["recipe_class"]
+        config = recipe["config"]
+        klass(coder, config).after_create()
 
         return coder
 
@@ -66,9 +76,9 @@ class Interface:
         self.coder.save()
         
         try:
-            self.recipe(self.coder).before_run(latest_message)
+            self.recipe.before_run(latest_message)
             
-            completion = self.recipe(self.coder).on_run()
+            completion = self.recipe.on_run()
             if completion.context_length_exceeded:
                 self.coder.error = {
                     "code": "reached_max_length"
@@ -88,8 +98,8 @@ class Interface:
                 return
             
 
-            message = self.recipe(self.coder).get_completion_message(completion)
-            command = self.recipe(self.coder).parse_command_from_message(message)
+            message = self.recipe.get_completion_message(completion)
+            command = self.recipe.parse_command_from_message(message)
             self.__log(name="command generated", content=command)
 
             if command is None:
@@ -176,9 +186,10 @@ class Interface:
 
     def __init__(self, coder_id):
         self.coder = Coder.objects.get(id=coder_id)
-        self.version = "1"
-        self.model = "gpt-4"
-        self.recipe = FunctionCallRecipe
+        recipe = Recipe.get(self.coder.recipe)
+        klass = recipe["recipe_class"]
+        config = recipe["config"]
+        self.recipe = klass(self.coder, config)
 
     # TODO update this
     def display_messages(self):
@@ -192,7 +203,7 @@ class Interface:
     def append_output(self, output, command):
         latest_command_message = CoderMessage.objects.filter(coder=self.coder, command__isnull=False, command_error__isnull=True).latest('created_at')
         # latest command message is getting passed here because first the user submits the otuput then we can check if the original task was completed
-        self.recipe(self.coder).on_function_call(output, command, latest_command_message)
+        self.recipe.on_function_call(output, command, latest_command_message)
 
     def append_user_message(self, content):
         CoderMessage.objects.create(

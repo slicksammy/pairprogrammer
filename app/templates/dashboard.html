@@ -13,7 +13,7 @@
 <div class="content">
     <h1>Welcome, {{ user.first_name }}!</h1>
     <div class="api-keys-section">
-        <h3 id="api-keys">API Keys</h3>
+        <p id="api-keys">Pear API Keys</p>
         <table class="table">
             <thead>
                 <tr>
@@ -33,9 +33,77 @@
         {% if api_keys|length < 2 %}
             <form method="post" action="/dashboard/api_key">
                 {% csrf_token %}
-                <button type="submit" class="btn btn-primary">Generate Key</button>
+                <button type="submit" class="btn btn-primary">Generate CLI Key</button>
             </form>
         {% endif %}
+    </div>
+    <br />
+    <br />
+    <div class="external-api-keys-section">
+        <p id="external-api-keys">OpenAI Keys</p>
+        <table class="table">
+            <thead>
+                <tr>
+                    <th scope="col">#</th>
+                    <th scope="col">Service</th>
+                    <th scope="col">Key</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for key in external_api_keys %}
+                <tr>
+                    <th>{{ forloop.counter }}</th>
+                    <td>{{ key.service_name }}</td>
+                    <td>{{ key.api_key }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    <div class="api-keys-section">
+        <p id="add-api-key">Add OpenAI Key</p>
+        <form method="post" action="/dashboard/api_key/add_external">
+            {% csrf_token %}
+            <div class="form-group row">
+                <div class="col-md-6">
+                    <label for="api_key">Key</label>
+                    <input type="text" class="form-control" id="api_key" name="api_key" required>
+                </div>
+                <div class="col-md-6">
+                    <label for="service">Service</label>
+                    <select class="form-control" id="service" name="service" required>
+                        <option value=""></option>
+                        <option value="openai_gpt_3">OpenAI GPT3</option>
+                        <option value="openai_gpt_4">OpenAI GPT4</option>
+                    </select>
+                </div>
+            </div>
+            <br>
+            <button type="submit" class="btn btn-primary">Add API Key</button>
+        </form>
+    </div>
+    <div class="preferences-section">
+        <p id="preferences">User Preferences</p>
+        <form method="post" action="/dashboard/update_preferences">
+            {% csrf_token %}
+            {% for key in user_preference_keys %}
+                <div class="form-group row">
+                    <div class="col-md-6">
+                        {% if key == "model" %}
+                            <label for="{{key}}">{{key}}</label>
+                            <select class="form-control" id="{{ key }}" name="{{ key }}" required>
+                                <option value="gpt-3.5-turbo-0613" {% if user_preference.preferences.model == "gpt-3.5-turbo-0613" %}selected{% endif %}>GPT 3.5 Turbo 0613</option>
+                                <option value="gpt-4-0613" {% if user_preference.preferences.model == "gpt-4-0613" %}selected{% endif %}>GPT 4 0613</option>
+                            </select>
+                        {% else %}
+                            <label for="{{key}}">{{key}}</label>
+                            <input type="text" class="form-control" id="{{key}}" name="{{key}}" value="{{ user_preference.preferences.key }}" required>
+                        {% endif %}
+                    </div>
+                </div>
+            {% endfor %}
+            <button type="submit" class="btn btn-primary">Save Preferences</button>
+        </form>
     </div>
 </div>
 {% endblock %}
