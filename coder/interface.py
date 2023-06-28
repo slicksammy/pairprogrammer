@@ -9,7 +9,6 @@ from planner.interface import Interface as PlannerInterface
 from coder.prompts.interface import Interface as PromptInterface
 from .prompts.interface import Interface as PromptInterface
 from app.models import User
-from openai.error import OpenAIError
 from .recipes.original import Original as OriginalRecipe
 from .recipes.function_call import FunctionCall as FunctionCallRecipe
 import traceback
@@ -29,10 +28,19 @@ class Interface:
         
 
     @classmethod
-    def create_coder(cls, tasks, requirements, context, user_id, prompt_version="1"):
+    def create_coder(cls, tasks, requirements, context, user_id, recipe):
         user_preference = UserPreference.objects.get(user_id=user_id)
 
-        recipe = 'gpt-4-0613' if user_preference.preferences.get("model") == 'gpt-4-0613' else 'gpt-3.5-turbo-0613'
+        if recipe is None:
+            recipe = 'gpt-4-0613' if user_preference.preferences.get("model") == 'gpt-4-0613' else 'gpt-3.5-turbo-0613'
+
+        elif recipe == "recall":
+            recipe = 'recall-gpt-4-0613' if user_preference.preferences.get("model") == 'gpt-4-0613' else 'recall-gpt-3.5-turbo-0613'
+        
+        elif recipe == "remember":
+            recipe = 'remember-gpt-4-0613' if user_preference.preferences.get("model") == 'gpt-4-0613' else 'remember-gpt-3.5-turbo-0613'
+
+        recipe_config = Recipe.get(recipe)
 
         coder = Coder.objects.create(
             tasks=tasks,
@@ -44,9 +52,8 @@ class Interface:
             recipe=recipe
         )
 
-        recipe = Recipe.get(recipe)
-        klass = recipe["recipe_class"]
-        config = recipe["config"]
+        klass = recipe_config["recipe_class"]
+        config = recipe_config["config"]
         klass(coder, config).after_create()
 
         return coder

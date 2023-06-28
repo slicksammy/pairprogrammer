@@ -25,10 +25,11 @@ class CreateCoderView(ExceptionHandlerView):
             planner_id = data["planner_id"]
             coder = Interface.create_coder_from_planner(planner_id)
         else:
-            tasks = data["tasks"]
-            requirements = data["requirements"]
-            context = data["context"]
-            coder = Interface.create_coder(tasks=tasks, requirements=requirements, context=context, user_id=user_id)
+            tasks = data.get("tasks")
+            requirements = data.get("requirements")
+            context = data.get("context")
+            recipe = data.get("recipe")
+            coder = Interface.create_coder(tasks=tasks, requirements=requirements, context=context, user_id=user_id, recipe=recipe)
         return Response({'id': coder.id }, status=status.HTTP_200_OK)
 
 @method_decorator(csrf_exempt, name='dispatch')
