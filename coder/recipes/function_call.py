@@ -44,7 +44,7 @@ class FunctionCall:
                     coder = self.coder,
                     role = "user",
                     function_name = None,
-                    content = "I was not able to parse the json. Please repeat useing the \"comment\" command",
+                    content = "I was not able to process your response. Please explain",
                     function_call = None
                 )
             elif message.command_error.get("code") == "invalid_command":

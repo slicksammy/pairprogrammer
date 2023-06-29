@@ -30,7 +30,7 @@ class Interface:
         return max_tokens - len(encoding.encode(content))
 
     @classmethod
-    def log(name, content=None):
+    def log(cls, name, content=None):
         print("*"*50)
         print(name)
         print(content)
@@ -38,11 +38,11 @@ class Interface:
 
     @classmethod
     def create_completion(cls, user, use_case, messages, model, functions=[], function_call="auto"):
-        cls.log(f"Completions Interface - creating and running completion", {
+        cls.log(name=f"Completions Interface - creating and running completion", content=str({
             "user": user,
             "model": model,
             "use_case": use_case,
-        })
+        }))
 
         try:
             response = None
