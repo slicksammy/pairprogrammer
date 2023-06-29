@@ -17,7 +17,7 @@
                 <code>{{ coder_message.command.command }}</code>
                 <code>{{ coder_message.command.arguments }}</code>
                 {% if coder_message.command.command == "write_file" %}
-                    <pre style="background-color: #5e5e5e"><code >{{ coder_message.command.arguments.content }}</code></pre>
+                    <pre><code >{{ coder_message.command.arguments.content }}</code></pre>
                 {% endif %}
             {% else %}
                 <code>{{ coder_message }}</code>

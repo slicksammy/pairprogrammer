@@ -24,6 +24,6 @@ class CoderAdmin(admin.ModelAdmin):
     def render_change_form(self, request, context, *args, **kwargs):
         coder = kwargs.get('obj')
         context['adminform'].form.instance = coder
-        coder_messages = CoderMessage.objects.filter(coder=coder)
+        coder_messages = CoderMessage.objects.filter(coder=coder).order_by("created_at")
         context['coder_messages'] = list(coder_messages.values())
         return super(CoderAdmin, self).render_change_form(request, context, *args, **kwargs)
