@@ -4,6 +4,7 @@ import tiktoken
 from django.contrib.contenttypes.models import ContentType
 from openai.error import OpenAIError
 from coder.models import Coder
+import traceback
 
 openai.api_key = "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"
 
@@ -29,11 +30,19 @@ class Interface:
         return max_tokens - len(encoding.encode(content))
 
     @classmethod
+    def log(name, content=None):
+        print("*"*50)
+        print(name)
+        print(content)
+        print("*"*50)
+
+    @classmethod
     def create_completion(cls, user, use_case, messages, model, functions=[], function_call="auto"):
-        print("*"*50)
-        print("running completion")
-        print(model)
-        print("*"*50)
+        cls.log(f"Completions Interface - creating and running completion", {
+            "user": user,
+            "model": model,
+            "use_case": use_case,
+        })
 
         try:
             response = None
@@ -67,10 +76,14 @@ class Interface:
 
             return Completion.objects.create(response=response, message=message, context_length_exceeded=(finish_reason == "length"), user=user, use_case=use_case)
         except OpenAIError as e:
+            cls.log(f"Completions Interface Error - OpenAI API returned an API Error: {e}")
             return Completion.objects.create(response=None, context_length_exceeded=(e.code == 'context_length_exceeded'), message=None,  user=user, use_case=use_case, error_code=e.code, error=True)
         except UnknownModelException as e:
+            cls.log("Completions Interface Error - unknown model", model)
             raise e
         except Exception as e:
+            cls.log("Completions Interface Error - unknown", str(e))
+            cls.log("Backtrace", traceback.format_exc())
             return Completion.objects.create(response=None, context_length_exceeded=False, message=None,  user=user, use_case=use_case, error_code="unknown", error=True)
 
     def __init__(self, completion=None, completion_id=None):

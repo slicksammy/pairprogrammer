@@ -13,7 +13,7 @@ class Coder(models.Model):
     # max length set to random number
     requirements = models.CharField(null=False, max_length=2000)
     context = models.CharField(null=False, max_length=2000)
-    recipe = models.CharField(null=True, max_length=50)
+    recipe = models.CharField(null=False, max_length=50)
 
     complete = models.BooleanField(default=False)
 
@@ -49,6 +49,19 @@ class CoderMessage(models.Model):
     command = models.JSONField(null=True)
     command_error = models.JSONField(null=True)
     system_command = models.BooleanField(default=False)
+
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+class CoderRecipe(models.Model):
+    class Meta:
+        db_table = 'coder_recipes'
+        unique_together = ('user_id', 'recipe')
+
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    user = models.ForeignKey('auth.User', on_delete=models.CASCADE, null=False)
+    config = models.JSONField(null=False)
+    recipe = models.CharField(null=False, max_length=50)
 
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)

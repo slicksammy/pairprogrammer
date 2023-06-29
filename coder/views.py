@@ -6,6 +6,7 @@ from rest_framework.permissions import IsAuthenticated
 from .interface import Interface
 from django.views.decorators.csrf import csrf_exempt
 from django.utils.decorators import method_decorator
+from django.contrib.auth.models import User
 
 
 class ExceptionHandlerView(APIView):
@@ -21,6 +22,7 @@ class CreateCoderView(ExceptionHandlerView):
     def post(self, request):
         data = request.data
         user_id = request.session.get("api_user_id")
+        user = User.objects.get(id=user_id)
         if data.get("from_planner"):
             planner_id = data["planner_id"]
             coder = Interface.create_coder_from_planner(planner_id)
@@ -29,7 +31,7 @@ class CreateCoderView(ExceptionHandlerView):
             requirements = data.get("requirements")
             context = data.get("context")
             recipe = data.get("recipe")
-            coder = Interface.create_coder(tasks=tasks, requirements=requirements, context=context, user_id=user_id, recipe=recipe)
+            coder = Interface.create_coder(tasks=tasks, requirements=requirements, context=context, user=user, requested_recipe=recipe)
         return Response({'id': coder.id }, status=status.HTTP_200_OK)
 
 @method_decorator(csrf_exempt, name='dispatch')

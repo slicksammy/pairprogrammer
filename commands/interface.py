@@ -25,6 +25,10 @@ class Interface:
     }
 
     @classmethod
+    def get_command(cls, command):
+        return cls.COMMANDS[command]
+
+    @classmethod
     def command_exists(cls, command):
         return command in cls.COMMANDS
 

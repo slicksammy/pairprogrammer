@@ -1,6 +1,8 @@
 from .recipes.function_call import FunctionCall
 from .recipes.recall import Recall
 from .recipes.remember import Remember
+from .recipes.custom import Custom
+from .models import CoderRecipe
 
 class Recipe:
     RECIPES={
@@ -44,5 +46,12 @@ class Recipe:
 
 
     @classmethod
-    def get(cls, recipe):
-        return cls.RECIPES[recipe]
+    def get(cls, user, recipe):
+        user_recipes = CoderRecipe.objects.filter(user=user, recipe=recipe)
+        config = {}
+        # get the user's custom recipes
+        [config.update({recipe.recipe: {"recipe_class": Custom, "config": recipe.config}}) for recipe in user_recipes]
+        # merge the default recipes in
+        config.update(cls.RECIPES)
+
+        return config[recipe]

@@ -3,7 +3,7 @@ from coder.exceptions import InvalidAssistantResponseException, NotEnoughTokensE
 from commands.interface import Interface as CommandInterface
 from completions.interface import Interface as CompletionsInterface
 from app_messages.interface import Interface as MessagesInterface
-from .models import Coder, CoderMessage
+from .models import Coder, CoderMessage, CoderRecipe
 import textwrap
 from planner.interface import Interface as PlannerInterface
 from coder.prompts.interface import Interface as PromptInterface
@@ -28,19 +28,29 @@ class Interface:
         
 
     @classmethod
-    def create_coder(cls, tasks, requirements, context, user_id, recipe):
-        user_preference = UserPreference.objects.get(user_id=user_id)
+    def create_coder_recipe(cls, recipe, user, config):
+        return CoderRecipe.objects.create(user=user, recipe=recipe, config=config)
 
-        if recipe is None:
+    @classmethod
+    def list_recipes(cls, user):
+        return list(CoderRecipe.filter(user=user).objects.order("-created_at"))
+
+    @classmethod
+    def create_coder(cls, tasks, requirements, context, user, requested_recipe):
+        user_preference = UserPreference.objects.get(user=user)
+
+        recipe = None
+        if requested_recipe is None:
             recipe = 'gpt-4-0613' if user_preference.preferences.get("model") == 'gpt-4-0613' else 'gpt-3.5-turbo-0613'
-
-        elif recipe == "recall":
+        elif requested_recipe == "recall":
             recipe = 'recall-gpt-4-0613' if user_preference.preferences.get("model") == 'gpt-4-0613' else 'recall-gpt-3.5-turbo-0613'
         
-        elif recipe == "remember":
+        elif requested_recipe == "remember":
             recipe = 'remember-gpt-4-0613' if user_preference.preferences.get("model") == 'gpt-4-0613' else 'remember-gpt-3.5-turbo-0613'
+        else:
+            recipe = requested_recipe
 
-        recipe_config = Recipe.get(recipe)
+        recipe_config = Recipe.get(user, recipe)
 
         coder = Coder.objects.create(
             tasks=tasks,
@@ -48,7 +58,7 @@ class Interface:
             context=context,
             current_task_index=0,
             complete=False,
-            user_id=user_id,
+            user=user,
             recipe=recipe
         )
 
@@ -210,7 +220,7 @@ class Interface:
 
     def __init__(self, coder_id):
         self.coder = Coder.objects.get(id=coder_id)
-        recipe = Recipe.get(self.coder.recipe)
+        recipe = Recipe.get(user=self.coder.user, recipe=self.coder.recipe)
         klass = recipe["recipe_class"]
         config = recipe["config"]
         self.recipe = klass(self.coder, config)
