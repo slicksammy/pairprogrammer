@@ -92,8 +92,8 @@
                         {% if key == "model" %}
                             <label for="{{key}}">{{key}}</label>
                             <select class="form-control" id="{{ key }}" name="{{ key }}" required>
-                                <option value="gpt-3.5-turbo-0613" {% if user_preference.preferences.model == "gpt-3.5-turbo-0613" %}selected{% endif %}>GPT 3.5 Turbo 0613</option>
-                                <option value="gpt-4-0613" {% if user_preference.preferences.model == "gpt-4-0613" %}selected{% endif %}>GPT 4 0613</option>
+                                <option value="gpt-3.5-turbo-0613" {% if user_preference.preferences.model == "gpt-3.5-turbo-0613" %}selected{% endif %}>GPT 3.5 Turbo</option>
+                                <option value="gpt-4-0613" {% if user_preference.preferences.model == "gpt-4-0613" %}selected{% endif %}>GPT 4</option>
                             </select>
                         {% else %}
                             <label for="{{key}}">{{key}}</label>
