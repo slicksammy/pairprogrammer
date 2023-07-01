@@ -1,0 +1,37 @@
+{% extends "base_generic.html" %}
+{% block content %}
+
+<div class="container">
+    <h3>Custom Recipes<h3></h3>
+    <p>Now you can create recipes to run specific tasks</p>
+    <a href="/dashboard/recipes/new"><button class="btn btn-primary">Create New Recipe</button></a>
+    <br>
+    <br>
+    <br>
+    <table class="table table-striped">
+        <thead class="thead-dark">
+        <tr>
+            <th>Recipe</th>
+            <th>Prompt</th>
+            <th>Actions</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for recipe in recipes %}
+            <tr>
+            <td>{{ recipe.recipe }}</td>
+            <td>{{ recipe.config.prompt }}</td>
+            <td>
+                <ul class="list-unstyled">
+                {% for function in recipe.config.functions %}
+                    <li>{{ function }}</li>
+                {% endfor %}
+                </ul>
+            </td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+    
+</div>
+{% endblock %}

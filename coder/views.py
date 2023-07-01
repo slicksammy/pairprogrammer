@@ -13,7 +13,7 @@ class ExceptionHandlerView(APIView):
     authentication_classes = []
 
     def handle_exception(self, exc):
-        return Response({'error': "there was a system error, please try again"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        return Response({'error': exc.args[0]}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
     
 # Create your views here.
 @method_decorator(csrf_exempt, name='dispatch')

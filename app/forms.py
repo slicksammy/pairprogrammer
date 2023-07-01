@@ -1,6 +1,9 @@
 from django import forms
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
+from coder.models import CoderRecipe
+from coder.interface import Interface as CoderInterface
+from django.core.validators import RegexValidator
 
 
 class CustomUserCreationForm(UserCreationForm):
@@ -22,3 +25,32 @@ class CustomUserCreationForm(UserCreationForm):
         if commit:
             user.save()
         return user
+
+class CoderRecipeForm(forms.Form):
+    recipe = forms.CharField(required=True, label='Recipe Name', validators=[
+            RegexValidator(
+                regex=r'^[A-Za-z0-9_]+$',
+                message='alphanumeric and underscores only',
+                code='invalid_alphabet'
+            ),
+        ],
+        widget=forms.TextInput(attrs={'placeholder': 'Recipe name alphanumeric and underscores only'})
+    )
+    prompt = forms.CharField(widget=forms.Textarea)
+    choices = [
+        ('read_file', 'Reading Files'),
+        ('write_file', 'Writing Files'),
+        ('create_file', 'Creating Files'),
+    ]
+    actions = forms.MultipleChoiceField(choices=choices, widget=forms.CheckboxSelectMultiple, label='Select the actions that will be allowed for this recipe')
+
+    def save(self, user, commit=True):
+ 
+        recipe = self.cleaned_data['recipe']
+        config = {
+            'model': 'gpt-4-0613',
+            'prompt': self.cleaned_data['prompt'],
+            'functions': self.cleaned_data['actions'],
+        }
+
+        return CoderInterface.create_coder_recipe(recipe=recipe, user=user, config=config)

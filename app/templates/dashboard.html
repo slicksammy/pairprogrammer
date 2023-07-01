@@ -7,6 +7,7 @@
 <div class="left-nav">
     <ul>
         <li><a href="{% url 'logout' %}">Logout</a></li>
+        <li><a href="/dashboard/recipes">Recipes</a></li>
     </ul>
 </div>
 
@@ -39,7 +40,7 @@
     </div>
     <br />
     <br />
-    <div class="external-api-keys-section">
+    <div class="external-api-keys-section" hidden>
         <p id="external-api-keys">OpenAI Keys</p>
         <table class="table">
             <thead>
@@ -60,7 +61,7 @@
             </tbody>
         </table>
     </div>
-    <div class="api-keys-section">
+    <div class="api-keys-section" hidden>
         <p id="add-api-key">Add OpenAI Key</p>
         <form method="post" action="/dashboard/api_key/add_external">
             {% csrf_token %}

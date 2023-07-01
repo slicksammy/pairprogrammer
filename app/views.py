@@ -7,8 +7,9 @@ from django.contrib.auth import login, authenticate
 from django.contrib.auth.decorators import login_required
 from django.views import View
 from app.authentication.email_backend import EmailBackend
-from .forms import CustomUserCreationForm
+from .forms import CustomUserCreationForm, CoderRecipeForm
 from .models import UserApiKey, ClientUsage, ExternalApiKey, UserPreference
+from coder.models import CoderRecipe
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.conf import settings
 from django.http import JsonResponse
@@ -158,3 +159,33 @@ class UpdateUserPreferencesView(LoginRequiredMixin, View):
         # Redirect back to the dashboard with a success message
         messages.success(request, 'Preferences updated successfully')
         return redirect('dashboard')
+
+class CoderRecipeFormView(LoginRequiredMixin, View):
+    login_url = '/login'
+
+    def get(self, request):
+        form = CoderRecipeForm()
+        return render(request, 'coder_recipes_new.html', {'form': form})
+
+    def post(self, request):
+        form = CoderRecipeForm(request.POST)
+ 
+        if form.is_valid():
+            form.save(user=request.user)
+            messages.success(request, 'Recipe added successfully')
+            return redirect('/dashboard/recipes')
+        else:
+            error_message = ''
+            for field, errors in form.errors.items():
+                # Construct the error message for each field
+                field_errors = ', '.join(errors)
+                error_message += f"{field}: {field_errors}\n"
+            messages.error(request, error_message)
+            return render(request, 'coder_recipes_new.html', {'form': form})
+
+class CoderRecipes(LoginRequiredMixin, View):
+    login_url = '/login'
+
+    def get(self, request):
+        recipes = CoderRecipe.objects.filter(user=request.user).order_by('-created_at')
+        return render(request, 'coder_recipes.html', {'recipes': recipes})

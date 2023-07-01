@@ -17,3 +17,5 @@ from .mv import Mv
 from .yarn import Yarn
 from .recall import Recall
 from .remember import Remember
+from .honey_badger_fault_list import HoneyBadgerFaultList
+from .github_user_information import GithubUserInformation

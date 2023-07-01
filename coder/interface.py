@@ -44,9 +44,10 @@ class Interface:
             recipe = 'gpt-4-0613' if user_preference.preferences.get("model") == 'gpt-4-0613' else 'gpt-3.5-turbo-0613'
         elif requested_recipe == "recall":
             recipe = 'recall-gpt-4-0613' if user_preference.preferences.get("model") == 'gpt-4-0613' else 'recall-gpt-3.5-turbo-0613'
-        
         elif requested_recipe == "remember":
             recipe = 'remember-gpt-4-0613' if user_preference.preferences.get("model") == 'gpt-4-0613' else 'remember-gpt-3.5-turbo-0613'
+        elif requested_recipe == "honeybadger":
+            recipe = 'honeybadger-gpt-4-0613' if user_preference.preferences.get("model") == 'gpt-4-0613' else 'honeybadger-gpt-3.5-turbo-0613'
         else:
             recipe = requested_recipe
 

@@ -12,8 +12,6 @@ class UnknownModelException(Exception):
     pass
 
 class Interface:
-    
-
     MAX_TOKENS = {
         "gpt-3.5-turbo": 4096,
         "gpt-4": 8000,

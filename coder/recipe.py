@@ -2,6 +2,7 @@ from .recipes.function_call import FunctionCall
 from .recipes.recall import Recall
 from .recipes.remember import Remember
 from .recipes.custom import Custom
+from .recipes.honey_badger import HoneyBadger
 from .models import CoderRecipe
 
 class Recipe:
@@ -41,7 +42,19 @@ class Recipe:
             "config": {
                 "model": "gpt-3.5-turbo-0613"
             }
-        }
+        },
+        'honeybadger-gpt-4-0613': {
+            "recipe_class": HoneyBadger,
+            "config": {
+                "model": 'gpt-4-0613'
+            }
+        },
+        'honeybadger-gpt-3.5-turbo-0613': {
+            "recipe_class": HoneyBadger,
+            "config": {
+                "model": 'gpt-3.5-turbo-0613'
+            }
+        },
     }
 
 

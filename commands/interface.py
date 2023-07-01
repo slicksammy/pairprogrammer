@@ -21,7 +21,9 @@ class Interface:
         "mv": Mv,
         "yarn": Yarn,
         "recall": Recall,
-        "remember": Remember
+        "remember": Remember,
+        "honey_badger_fault_list": HoneyBadgerFaultList,
+        "github_user_information": GithubUserInformation,
     }
 
     @classmethod
