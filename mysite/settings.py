@@ -29,12 +29,15 @@ SECRET_KEY = 'django-insecure-_i8*uf7xy9hx9tpq4*iu8p_e+-slm^03i&5m_q4k*2gj+$&%_w
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False
 
+# TODO only allow localhost if dev environment
 ALLOWED_HOSTS = [
     'pairprogrammer-production.up.railway.app',
     'localhost',
-    'www.pearprogrammer.dev'
+    'www.pearprogrammer.dev',
+    'pairprogrammer-staging.up.railway.app'
 ]
 
+# TODO only allow localhost if dev environment
 CSRF_TRUSTED_ORIGINS = ['https://pairprogrammer-production.up.railway.app', 'http://localhost', 'https://www.pearprogrammer.dev', 'https://pairprogrammer-staging.up.railway.app/']
 
 LOGGING = {
