@@ -34,5 +34,6 @@ urlpatterns = [
     # path('api/v1/planner/generate_tasks', GenerateTaskView.as_view(), name="generate_tasks"),
     # path('api/v1/planner/list_tasks', ListTasksView.as_view(), name="list_tasks"),
     # path('api/v1/planner/get_messages', GetMessagesView.as_view(), name="get_messages"),
-    path('', include('app.urls'))
+    path('', include('app.urls')),
+    path('', include('events.urls'))
 ]

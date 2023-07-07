@@ -1,4 +1,4 @@
-{% extends "base_generic.html" %}
+{% extends "dashboard_layout.html" %}
 {% block content %}
     <div class="container">
         <h2 class="text-center">Create a New Recipe</h2>
@@ -6,7 +6,7 @@
             {% csrf_token %}
             <div class="mb-3">
                 <label>You will run <code>pear-on recipe RECIPE_NAME</code></label>
-                <input type="text" name="{{ form.recipe.name }}" value="{{ form.recipe.value|default:'' }}" maxlength="30" class="form-control" required placeholder="Recipe Name" />
+                <input type="text" name="{{ form.recipe.name }}" value="{{ form.recipe.value|default:'' }}" maxlength="30" class="form-control" required placeholder="Recipe Name" {% if form.recipe.field.widget.attrs.readonly %}readonly{% endif %}/>
             </div>
             <span>When you run your recipe you will have the option to input "requirements"</span>
             <br>
@@ -19,7 +19,7 @@
                 <textarea rows=3 type="text" name="{{ form.prompt.name }}" class="form-control" required placeholder="Example:&#10Review the file in <<REQUIREMENTS>>&#10Information about my app <<CONTEXT>>" >{{ form.prompt.value|default:'' }}</textarea>
             </div>
             <label>Select the actions you want Pear to take</label>
-            {{ form.actions }}
+            {{ form.functions }}
             <button class="btn btn-primary" type="submit">Submit</button>
         </form>
     </div>

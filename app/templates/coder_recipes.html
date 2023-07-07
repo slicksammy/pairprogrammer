@@ -1,4 +1,4 @@
-{% extends "base_generic.html" %}
+{% extends "dashboard_layout.html" %}
 {% block content %}
 
 <div class="container">
@@ -13,21 +13,21 @@
         <tr>
             <th>Recipe</th>
             <th>Prompt</th>
-            <th>Actions</th>
+            <!-- <th>Actions</th> -->
         </tr>
         </thead>
         <tbody>
         {% for recipe in recipes %}
             <tr>
-            <td>{{ recipe.recipe }}</td>
+            <td><a href="/dashboard/recipes/edit/{{recipe.recipe}}">{{ recipe.recipe }}</td></a>
             <td>{{ recipe.config.prompt }}</td>
-            <td>
+            <!-- <td>
                 <ul class="list-unstyled">
                 {% for function in recipe.config.functions %}
                     <li>{{ function }}</li>
                 {% endfor %}
                 </ul>
-            </td>
+            </td> -->
             </tr>
         {% endfor %}
         </tbody>

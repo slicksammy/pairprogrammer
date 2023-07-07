@@ -14,5 +14,9 @@ urlpatterns = [
     path('dashboard/api_key/add_external', views.AddExternalApiKeyView.as_view(), name='add_external_api_key'),
     path('dashboard/update_preferences', views.UpdateUserPreferencesView.as_view(), name='update_preferences'),
     path('dashboard/recipes', views.CoderRecipes.as_view(), name='coder_recipes'),
-    path('dashboard/recipes/new', views.CoderRecipeFormView.as_view(), name='coder_recipe_new')
+    path('dashboard/recipes/new', views.CoderRecipeFormView.as_view(), name='coder_recipe_new'),
+    path('dashboard/integrations', views.Integrations.as_view(), name='integrations'),
+    path('dashboard/integrations/<str:integration>', views.IntegrationsFormView.as_view(), name='integration'),
+    path('dashboard/recipes/edit/<str:recipe>', views.CoderRecipeEditFormView.as_view(), name='coder_recipe'),
+    
 ]

@@ -1,7 +1,7 @@
 .left-nav {
     background-color: #11121C;
     height: 100vh;
-    width: 100px;
+    width: 150px;
     position: fixed;
     padding: 20px;
 }
@@ -21,7 +21,7 @@
 }
 
 .content {
-    margin-left: 220px;
+    margin-left: 170px;
     padding: 20px;
 }
 

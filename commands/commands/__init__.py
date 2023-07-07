@@ -18,4 +18,8 @@ from .yarn import Yarn
 from .recall import Recall
 from .remember import Remember
 from .honey_badger_fault_list import HoneyBadgerFaultList
+from .honey_badger_fault_id import HoneyBadgerFaultID
 from .github_user_information import GithubUserInformation
+from .list_github_pull_request import ListGitHubPullRequest
+from .github_pull_comments import GitHubPullComments
+from .github_pull_comment_replies import GitHubPullCommentReplies

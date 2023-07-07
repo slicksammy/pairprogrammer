@@ -1,23 +1,28 @@
 import json
+from ..models import Coder
 from completions.interface import Interface as CompletionsInterface
+from app_messages.interface import Interface as MessagesInterface
 from json.decoder import JSONDecodeError
 from coder.models import CoderMessage
-from commands.commands import Recall as RecallCommand
-from commands.commands import Remember as RememberCommand
-from commands.interface import Interface as CommandsInterface
-from app.models import UserPreference
+import textwrap
+from commands.commands import GitHubPullCommentReplies
 
-class Custom:
+class GithubCommentReply:
     def __init__(self, coder, config):
         self.coder = coder
-        self.prompt = config["prompt"]
-        self.functions = config["functions"]
-        # self.model = config["model"]
-        user_preference = UserPreference.objects.get(user=coder.user)
-        self.model = 'gpt-4-0613' if user_preference.preferences.get("model") == 'gpt-4-0613' else 'gpt-3.5-turbo-0613'
-        
+        self.model = config["model"]
+
     def after_create(self):
-        content =  self.prompt.replace("<<REQUIREMENTS>>", self.coder.requirements)
+        content =  """
+        You are an AI assistant that follows instructions extremely well. Help as much as you can.
+
+        The user just submitted a comment on a pull request and you need to reply to it.
+
+        Comment
+        <<REQUIREMENTS>>
+
+        
+        """.replace("<<REQUIREMENTS>>", self.coder.requirements)
 
         CoderMessage.objects.create(
             coder = self.coder,
@@ -102,9 +107,8 @@ class Custom:
                 )
 
         # TODO get functions
-        functions = [CommandsInterface.get_command(function) for function in self.functions]
-        functions = [function.schema() for function in functions]
-        return CompletionsInterface.create_completion(user=user, use_case="coder_completion", messages=messages, model=self.model, functions=functions, function_call="auto")
+        functions = [GitHubPullCommentReplies.schema()]
+        return CompletionsInterface.create_completion(user=user, use_case="coder_completion", messages=messages, model=self.model, functions=functions, function_call={ "name": "github_pull_comment_replies" }) #gpt-3.5-turbo-16k-0613
 
     def get_completion_message(self, completion):
         return completion.message

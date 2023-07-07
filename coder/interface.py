@@ -30,6 +30,14 @@ class Interface:
     @classmethod
     def create_coder_recipe(cls, recipe, user, config):
         return CoderRecipe.objects.create(user=user, recipe=recipe, config=config)
+    
+    @classmethod
+    def update_coder_recipe(cls, recipe, user, config):
+        recipe = CoderRecipe.objects.get(user=user, recipe=recipe)
+        recipe.config = config
+        recipe.save()
+        
+        return True
 
     @classmethod
     def list_recipes(cls, user):
@@ -48,6 +56,8 @@ class Interface:
             recipe = 'remember-gpt-4-0613' if user_preference.preferences.get("model") == 'gpt-4-0613' else 'remember-gpt-3.5-turbo-0613'
         elif requested_recipe == "honeybadger":
             recipe = 'honeybadger-gpt-4-0613' if user_preference.preferences.get("model") == 'gpt-4-0613' else 'honeybadger-gpt-3.5-turbo-0613'
+        elif requested_recipe == "github_comment_reply":
+            recipe = 'github_comment_reply-gpt-4-0613' if user_preference.preferences.get("model") == 'gpt-4-0613' else 'github_comment_reply-gpt-3.5-turbo-0613'
         else:
             recipe = requested_recipe
 
@@ -218,6 +228,15 @@ class Interface:
     @classmethod
     def list(cls, user_id):
         return list(map(lambda coder: { "id" : coder.id, "tasks": coder.tasks, "requirements": coder.requirements, "created_at": coder.created_at }, list(Coder.objects.filter(user_id=user_id).order_by("-created_at").all())))
+
+    @classmethod
+    def get_recipe(cls, user, recipe):
+        recipe = CoderRecipe.objects.get(user=user, recipe=recipe)
+        return {
+            "recipe": recipe.recipe,
+            "prompt": recipe.config["prompt"],
+            "functions": recipe.config["functions"],
+        }
 
     def __init__(self, coder_id):
         self.coder = Coder.objects.get(id=coder_id)

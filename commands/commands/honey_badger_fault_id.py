@@ -4,31 +4,27 @@ from django.conf import settings
 from commands.helpers import is_relative
 from integrations.interface import Interface as IntegrationsInterface
 
-class HoneyBadgerFaultList(Base):
+class HoneyBadgerFaultID(Base):
     @classmethod
     def schema(cls):
         return {
-            "name": "honey_badger_fault_list",
-            "description": "get a list of faults from the honey badger api",
+            "name": "honey_badger_fault_id",
+            "description": "get fault details by id from the honey badger api",
             "parameters": {
                 "type": "object",
                 "properties": {
-                    "recent": {
-                        "type": "boolean",
-                        "description": "List the errors that have most recently occurred first"
-                    },
-                    "frequent": {
-                        "type": "boolean",
-                        "description": "List the errors that have occurred most frequently first"
+                    "id": {
+                        "type": "string",
+                        "description": "Fault ID"
                     }
                 },
-                "required": ["recent", "frequent"],
+                "required": ["id"],
             }
         }
 
     def required_arguments(cls):
-        return ["recent", "frequent"]
-    
+        return ["id"]
+
     @classmethod
     def is_system(self):
         return True
@@ -38,27 +34,23 @@ class HoneyBadgerFaultList(Base):
         config = IntegrationsInterface.get_config(user=user, integration_identifier='honeybadger')
         if config is None:
             raise Exception("You need to configure the honeybadger integration first")
-        
+
         api_key = config['api_key']
 
         # Replace with your project ID
         project_id = config['project_id']
 
-        url = f"https://app.honeybadger.io/v2/projects/{project_id}/faults"
+        fault_id = arguments['id']
 
-        params = {
-            'recent': arguments['recent'],
-            'frequent': arguments['frequent']
-        }
+        url = f"https://app.honeybadger.io/v2/projects/{project_id}/faults/{fault_id}/notices"
 
         response = requests.get(
             url,
-            params=params,
             auth=(api_key, ''),
         )
 
         print("*"*50)
         print("Honeybader response")
         print(response.json())
-        
+
         return response.json()
