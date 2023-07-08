@@ -23,11 +23,7 @@ from .interface import Interface
 
 class HomeView(View):
     def get(self, request):
-        readme_content = None
-        readme_path = os.path.join(settings.BASE_DIR, 'README.md')
-        with open(readme_path, 'r') as f:
-            readme_content = f.read()
-        return render(request, 'home.html', {'readme_content': readme_content})
+        return render(request, 'index.html')
 
 
 class SignupView(View):

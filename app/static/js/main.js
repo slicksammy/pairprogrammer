@@ -13166,20 +13166,8 @@
     mirror: !1,
     anchorPlacement: "top-bottom",
   });
-  var e = document.querySelectorAll(".typed-animation");
-  0 < e.length &&
-    e.forEach((e) => {
-      new Typed(e, {
-        strings: JSON.parse(e.dataset.strings),
-        typeSpeed: 80,
-        backSpeed: 40,
-        backDelay: 3e3,
-        startDelay: 1e3,
-        fadeOut: !0,
-        loop: !0,
-      });
-    }),
-    new VenoBox({ selector: ".video-play-btn" });
+
+  new VenoBox({ selector: ".video-play-btn" });
   const t = document.querySelector(".pricing-table");
   if (t) {
     e = document.querySelectorAll(".switch-wrapper input");
@@ -13318,3 +13306,93 @@
     }
   }
 })();
+
+// last Javascript
+
+$(document).ready(function () {
+  $(".carousel-control-prev, .carousel-control-next").click(function () {
+    $(this).blur();
+  });
+});
+
+var carousel = document.getElementById("carouselExampleIndicators");
+
+var prevButton = carousel.querySelector(".carousel-control-prev");
+var nextButton = carousel.querySelector(".carousel-control-next");
+
+prevButton.addEventListener("click", stopCarouselIfFirstSlide);
+nextButton.addEventListener("click", stopCarouselIfLastSlide);
+
+function isFirstSlide() {
+  var activeItem = carousel.querySelector(".carousel-item.active");
+  return activeItem.classList.contains("carousel-item-first");
+}
+
+function isLastSlide() {
+  var activeItem = carousel.querySelector(".carousel-item.active");
+  return activeItem.classList.contains("carousel-item-last");
+}
+
+function stopCarouselIfFirstSlide(event) {
+  if (isFirstSlide()) {
+    event.preventDefault();
+    event.stopPropagation();
+    prevButton.classList.add("disabled");
+  } else {
+    // nextButton.classList.remove('disabled');
+  }
+}
+
+function stopCarouselIfLastSlide(event) {
+  if (isLastSlide()) {
+    event.preventDefault();
+    event.stopPropagation();
+    // nextButton.classList.add('disabled');
+  } else {
+    // prevButton.classList.remove('disabled');
+  }
+}
+
+$(".carousel").carousel();
+
+setInterval(() => {
+  var prevButton = carousel.querySelector(".carousel-control-prev");
+  var nextButton = carousel.querySelector(".carousel-control-next");
+
+  var carouselItems = document.getElementsByClassName("carousel-item");
+
+  var activePosition = -1;
+
+  for (var i = 0; i < carouselItems.length; i++) {
+    if (carouselItems[i].classList.contains("active")) {
+      activePosition = i + 1;
+      break;
+    }
+  }
+
+  if (activePosition == 1) {
+    prevButton.classList.add("disabled");
+  } else {
+    prevButton.classList.remove("disabled");
+  }
+
+  var carouselItems = document.getElementsByClassName("carousel-item");
+
+  var activePosition = -1;
+
+  for (var i = 0; i < carouselItems.length; i++) {
+    if (carouselItems[i].classList.contains("active")) {
+      activePosition = i + 1;
+      break;
+    }
+  }
+
+  var isLastPosition = activePosition === carouselItems.length;
+
+  if (isLastPosition) {
+    nextButton.classList.add("disabled");
+  } else {
+    nextButton.classList.remove("disabled");
+  }
+  console.log(activePosition, isLastPosition);
+}, 100);
