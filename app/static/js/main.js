@@ -13311,6 +13311,16 @@
 
 $(document).ready(function () {
   $(".carousel-control-prev, .carousel-control-next").click(function () {
+    var iframes = document.getElementsByTagName("iframe");
+
+    // Iterate through all iframes and pause each one
+    for (var i = 0; i < iframes.length; i++) {
+      var iframe = iframes[i];
+      iframe.contentWindow.postMessage('{"event":"command","func":"' + 'pauseVideo' + '","args":""}', '*');
+
+      // Pause the video playback
+      // iframeDocument.pause(); // Assuming the iframe contains a video element
+    }
     $(this).blur();
   });
 });
@@ -13394,5 +13404,5 @@ setInterval(() => {
   } else {
     nextButton.classList.remove("disabled");
   }
-  console.log(activePosition, isLastPosition);
+
 }, 100);
