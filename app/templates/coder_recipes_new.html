@@ -16,7 +16,7 @@
             <br>
             <span>You can use "requirements" and your app's context in the prompt</span>
             <div class="mb-3">
-                <textarea rows=3 type="text" name="{{ form.prompt.name }}" class="form-control" required placeholder="Example:&#10Review the file in <<REQUIREMENTS>>&#10Information about my app <<CONTEXT>>" >{{ form.prompt.value|default:'' }}</textarea>
+                <textarea rows=10 type="text" name="{{ form.prompt.name }}" class="form-control" required placeholder="Example:&#10Review the file in <<REQUIREMENTS>>&#10Information about my app <<CONTEXT>>" >{{ form.prompt.value|default:'' }}</textarea>
             </div>
             <label>Select the actions you want Pear to take</label>
             {{ form.functions }}

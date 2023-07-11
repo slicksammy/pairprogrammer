@@ -1,24 +1,14 @@
 import jsonschema
 from jsonschema.exceptions import ValidationError
 from .models import Integration
-from .integrations import HoneyBadger, Github
 from django import forms
 from django.core.validators import RegexValidator
+from .config import Config
 
 class Interface:
-    
-    INTEGRATIONS = {
-        "honeybadger": {
-            "integration_class": HoneyBadger,
-        },
-        "github": {
-            "integration_class": Github,
-        }
-    }
-
     @classmethod
     def create_integration(cls, integration_identifier, user, config):
-        integration_class = cls.INTEGRATIONS[integration_identifier]["integration_class"]
+        integration_class = Config.INTEGRATIONS[integration_identifier]["integration_class"]
         config_schema = integration_class.config_schema()
         jsonschema.validate(config, config_schema)
         
@@ -30,7 +20,7 @@ class Interface:
     
     @classmethod
     def upsert_integration(cls, integration_identifier, user, config):
-        integration_class = cls.INTEGRATIONS[integration_identifier]["integration_class"]
+        integration_class = Config.INTEGRATIONS[integration_identifier]["integration_class"]
         config_schema = integration_class.config_schema()
         jsonschema.validate(config, config_schema)
 
@@ -50,7 +40,7 @@ class Interface:
     @classmethod
     def available_integrations(cls):
         integrations = []
-        for key, value in cls.INTEGRATIONS.items():
+        for key, value in Config.INTEGRATIONS.items():
             integrations.append({
                 "name": key,
                 "logo": value["integration_class"].logo(),
@@ -61,14 +51,14 @@ class Interface:
     @classmethod
     def form(cls, user, integration_identifier):
         # will fail if integration identifier doesnt exist
-        cls.INTEGRATIONS[integration_identifier]
+        Config.INTEGRATIONS[integration_identifier]
 
         integration = Integration.objects.filter(user=user, integration=integration_identifier).first()
         initial={}
         if integration is not None:
             initial = integration.config
         
-        integration_class = cls.INTEGRATIONS[integration_identifier]["integration_class"]
+        integration_class = Config.INTEGRATIONS[integration_identifier]["integration_class"]
         form = integration_class.Form(initial=initial)
         # for field in form:
         #     breakpoint()
@@ -79,7 +69,7 @@ class Interface:
     def save_form(cls, **kwargs):
         user = kwargs.pop('user')
         
-        integration_class = cls.INTEGRATIONS[kwargs['integration_identifier']]["integration_class"]
+        integration_class = Config.INTEGRATIONS[kwargs['integration_identifier']]["integration_class"]
         form = integration_class.Form(kwargs)
         
         if form.is_valid():

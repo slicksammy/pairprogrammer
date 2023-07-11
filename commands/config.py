@@ -6,6 +6,7 @@ class Config:
         "memory": {"display": "Memory", "description": "Commands to help you remember and recall things"},
         "honeybadger": {"display": "Honeybadger", "description": "Commands to interact with Honeybadger"},
         "github": {"display": "Github", "description": "Commands to interact with Github"},
+        "railway": {"display": "Railway", "description": "Commands to interact with Railway"}
     }
 
     COMMANDS = {
@@ -30,7 +31,8 @@ class Config:
         "honey_badger_fault_id": {"command_class": HoneyBadgerFaultID, "display": "HoneyBadger Fault ID", "description": "Command to get a fault by id from the HoneyBadger.", "group": COMMAND_GROUPS["honeybadger"]},
         "list_github_pull_request": {"command_class": ListGitHubPullRequest, "display": "List Pull Requests", "description": "Command to create a pull request on GitHub.", "group": COMMAND_GROUPS["github"]},
         "github_pull_comments": {"command_class": GitHubPullComments, "display": "Pull Request Comments", "description": "Command to retrieve comments on pull request.", "group": COMMAND_GROUPS["github"]},
-        "github_pull_comment_replies": {"command_class": GitHubPullCommentReplies, "display": "Reply to Pull Request Comment", "description": "Command to reply to a comment on pull request.", "group": COMMAND_GROUPS["github"]}
+        "github_pull_comment_replies": {"command_class": GitHubPullCommentReplies, "display": "Reply to Pull Request Comment", "description": "Command to reply to a comment on pull request.", "group": COMMAND_GROUPS["github"]},
+        "railway_get_information": {"command_class": RailwayGetInformation, "display": "Get Railway Project Information", "description": "Command to retrieve information about a Railway project.", "group": COMMAND_GROUPS["railway"]}
     }
     
     @classmethod
