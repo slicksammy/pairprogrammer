@@ -1,0 +1,40 @@
+{% extends 'dashboard_layout.html' %}
+{% load static %}
+{% block content %}
+<style>
+  .integration {
+    text-align: center;
+    cursor: pointer;
+  }
+
+  .integration:hover {
+    background-color: #f1f1f1;
+  }
+
+  .integrations-img {
+      width: 50px;
+      display: block;
+      margin: 0 auto
+  }
+</style>
+<div class="container">
+  <h2 style="text-align: center">Integrations</h2>
+  <!-- <a href="/dashboard/integrations/new"><button class="btn btn-primary">Create New Integration</button></a> -->
+
+  <div class="row">
+    {% for integration in integrations %}
+      <div class="col-md-2 integration" >
+        <a href="/dashboard/integrations/{{integration.name}}">
+
+          <span>{{integration.name}}</span>
+          <img
+            width="50px"
+            src="{% static integration.logo %}"
+            class="integrations-img"
+          />
+        </a>
+      </div>
+    {% endfor %}
+  </div>
+</div>
+{% endblock %}

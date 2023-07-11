@@ -1,42 +1,35 @@
 from .exceptions import CommandNotFoundException
 from commands.commands import *
+from .config import Config
 
 class Interface:
-    COMMANDS = {
-        "delete_file": DeleteFile,
-        "view_changes": ViewChanges,
-        "delete_lines": DeleteLines,
-        "rspec": Rspec,
-        "ask_question": AskQuestion,
-        "read_file": ReadFile,
-        "update_file": UpdateFile,
-        "create_file": CreateFile,
-        "create_directory": CreateDirectory,
-        "comment": Comment,
-        "write_file": WriteFile,
-        "rails": Rails,
-        "bundle": Bundle,
-        "ls": Ls,
-        "python": Python,
-        "mv": Mv,
-        "yarn": Yarn,
-        "recall": Recall,
-        "remember": Remember,
-        "honey_badger_fault_list": HoneyBadgerFaultList,
-        "github_user_information": GithubUserInformation,
-    }
+    @classmethod
+    def choosable_commands(cls):
+        ignore_these = []
+        ignore_these.append('comment') # this command is allowed by default
+
+        output = {}
+        for command, configuration in Config.COMMANDS.items():
+            if command not in ignore_these:
+                output[command] = {
+                    "display": configuration['display'],
+                    "description": configuration['description'],
+                    "group": configuration['group']
+                }
+
+        return output
 
     @classmethod
     def get_command(cls, command):
-        return cls.COMMANDS[command]
+        return Config.get_command(command)['command_class']
 
     @classmethod
     def command_exists(cls, command):
-        return command in cls.COMMANDS
+        return Config.command_exists(command)
 
     @classmethod
     def validate_arguments(cls, command, arguments):
-        command_instance = cls.COMMANDS[command](arguments)
+        command_instance = Config.get_command(command)['command_class'](arguments)
         validations = {}
         # get the required arguments
         for argument in command_instance.required_arguments():
@@ -53,53 +46,13 @@ class Interface:
     
     @classmethod
     def is_system_command(cls, command):
-        command_class = cls.COMMANDS[command]
+        command_class = Config.get_command(command)['command_class']
         return command_class.is_system()
 
     @classmethod
     def run_system_command(cls, command, arguments, user):
-        command_class = cls.COMMANDS[command]
+        command_class = Config.get_command(command)['command_class']
         if not command_class.is_system():
             raise Exception("Not a system command")
         
         return command_class.run(arguments, user)
-
-    
-
-    # def exec_command(self, command, arguments):
-    #     if command == "delete_file":
-    #         klass, use_output, custom_output = [DeleteFile, False, "File deleted"]
-    #     elif command == "view_changes":
-    #         klass, use_output, custom_output = [ViewChanges, True, None]
-    #     elif command == "delete_lines":
-    #         klass, use_output, custom_output = [DeleteLines, False, "Lines deleted"]
-    #     elif command == "rspec":
-    #         klass, use_output, custom_output = [Rspec, True, None]
-    #     elif command == "ask_question":
-    #         klass, use_output, custom_output = [AskQuestion, True, None]
-    #     elif command == "read_file":
-    #         klass, use_output, custom_output = [ReadFile, True, None]
-    #     elif command == "update_file":
-    #         klass, use_output, custom_output = [UpdateFile, False, "File updated"]
-    #     elif command == "create_file":
-    #         klass, use_output, custom_output = [CreateFile, False, "File created"]
-    #     elif command == "create_directory":
-    #         klass, use_output, custom_output = [CreateDirectory, False, "Directory created"]
-    #     elif command == "comment":
-    #         klass, use_output, custom_output = [Comment, False, "Comment displayed"]
-    #     else:
-    #         raise CommandNotFoundException(f"{command} not found")
-        
-    #     try:
-    #         command_instance = klass()
-    #         command_instance.validate_arguments(arguments)
-    #         # arguments = command_instance.convert_args_from_strings(arguments)
-    #         command_output = command_instance.execute(**arguments)
-    #         if use_output:
-    #             output = command_output
-    #         else:
-    #             output = custom_output
-    #         return { "output": output, "exception": False }
-    #     except Exception as e:
-    #         return { "type": str(type(e)), "message": e.args[0], "exception": True }
-

@@ -7,7 +7,7 @@ from django.contrib.auth import login, authenticate
 from django.contrib.auth.decorators import login_required
 from django.views import View
 from app.authentication.email_backend import EmailBackend
-from .forms import CustomUserCreationForm, CoderRecipeForm
+from .forms import CustomUserCreationForm, CoderRecipeForm, CoderRecipeEditForm
 from .models import UserApiKey, ClientUsage, ExternalApiKey, UserPreference
 from coder.models import CoderRecipe
 from django.contrib.auth.mixins import LoginRequiredMixin
@@ -19,6 +19,8 @@ from django.views.decorators.csrf import csrf_exempt
 from django.utils.decorators import method_decorator
 from rest_framework.views import APIView
 from .interface import Interface
+from integrations.interface import Interface as IntegrationsInterface
+from coder.interface import Interface as CoderInterface
 
 
 class HomeView(View):
@@ -167,9 +169,50 @@ class CoderRecipeFormView(LoginRequiredMixin, View):
         form = CoderRecipeForm(request.POST)
  
         if form.is_valid():
-            form.save(user=request.user)
+            try:
+                form.save(user=request.user)
+            except Exception as e:
+                messages.error(request, "There was an issue creating your recipe. It could be that your recipe name already exists.")
+                return render(request, 'coder_recipes_new.html', {'form': form})
+
             messages.success(request, 'Recipe added successfully')
             return redirect('/dashboard/recipes')
+        else:
+            error_message = ''
+            for field, errors in form.errors.items():
+                # Construct the error message for each field
+                field_errors = ', '.join(errors)
+                error_message += f"{field}: {field_errors}\n"
+            messages.error(request, error_message)
+            return render(request, 'coder_recipes_new.html', {'form': form})
+        
+
+class CoderRecipeEditFormView(LoginRequiredMixin, View):
+    login_url = '/login'
+
+    def get(self, request, recipe):
+        recipe_data = CoderInterface.get_recipe(user=request.user, recipe=recipe)
+        form = CoderRecipeEditForm(recipe_data)
+        return render(request, 'coder_recipes_new.html', {'form': form})
+
+    def post(self, request, recipe):
+        params = {
+            "recipe": request.POST['recipe'],
+            "prompt": request.POST['prompt'],
+            "functions": request.POST.getlist('functions')
+        }
+
+        form = CoderRecipeEditForm(params)
+        if form.is_valid():
+            try:
+                form.save(user=request.user)
+            except Exception as e:
+                breakpoint()
+                messages.error(request, "There was an issue updating your recipe. It could be that your recipe name already exists.")
+                return render(request, 'coder_recipes_new.html', {'form': form})
+
+            messages.success(request, 'Recipe saved successfully')
+            return render(request, 'coder_recipes_new.html', {'form': form})
         else:
             error_message = ''
             for field, errors in form.errors.items():
@@ -185,3 +228,39 @@ class CoderRecipes(LoginRequiredMixin, View):
     def get(self, request):
         recipes = CoderRecipe.objects.filter(user=request.user).order_by('-created_at')
         return render(request, 'coder_recipes.html', {'recipes': recipes})
+    
+class Integrations(LoginRequiredMixin, View):
+    login_url = '/login'
+
+    def get(self, request):
+        user = request.user
+
+        return render(request, 'integrations.html', { 'integrations': IntegrationsInterface.available_integrations() })
+    
+    def post(self, request):
+        integration_params = {k: v for k, v in request.POST.items() if k != "csrfmiddlewaretoken"}
+        response = IntegrationsInterface.save_form(user=request.user, **integration_params)
+
+        if response.get('integration_identifier'):
+            messages.success(request, 'Integration saved successfully')
+            return redirect(f'/dashboard/integrations/{response.get("integration_identifier")}')
+        elif response.get('error_message'):
+            messages.error(request, response.get('error_message'))
+            return render(request, 'integrations_new.html', {'form': response.get('form')})
+        else:
+            form = response.get('form')
+            error_message = ''
+            for field, errors in form.errors.items():
+                # Construct the error message for each field
+                field_errors = ', '.join(errors)
+                error_message += f"{field}: {field_errors}\n"
+            messages.error(request, error_message)
+            return render(request, 'integrations_new.html', {'form': form})
+    
+class IntegrationsFormView(LoginRequiredMixin, View):
+    login_url = '/login'
+    
+    def get(self, request, integration):
+        form = IntegrationsInterface.form(request.user, integration)
+        return render(request, 'integrations_new.html', {'form': form, "integration": integration})
+

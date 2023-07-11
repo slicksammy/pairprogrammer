@@ -3,6 +3,7 @@ from .recipes.recall import Recall
 from .recipes.remember import Remember
 from .recipes.custom import Custom
 from .recipes.honey_badger import HoneyBadger
+from .recipes.github_comment_reply import GithubCommentReply
 from .models import CoderRecipe
 
 class Recipe:
@@ -55,6 +56,18 @@ class Recipe:
                 "model": 'gpt-3.5-turbo-0613'
             }
         },
+        'github_comment_reply-gpt-4-0613': {
+            "recipe_class": GithubCommentReply,
+            "config": {
+                "model": 'gpt-4-0613'
+            }
+        },
+        'github_comment_reply-3.5-turbo-0613': {
+            "recipe_class": GithubCommentReply,
+            "config": {
+                "model": 'gpt-3.5-turbo-0613'
+            }
+        }
     }
 
 

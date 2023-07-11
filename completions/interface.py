@@ -72,7 +72,15 @@ class Interface:
             if "choices" in response:
                 finish_reason = response["choices"][0].get("finish_reason")
 
-            return Completion.objects.create(response=response, message=message, context_length_exceeded=(finish_reason == "length"), user=user, use_case=use_case)
+            completion = Completion.objects.create(response=response, message=message, context_length_exceeded=(finish_reason == "length"), user=user, use_case=use_case)
+            cls.log(name=f"Completions Interface - created completion", content=str({
+                "completion_id": completion.id,
+                "response": completion.response,
+                "message": completion.message,
+                "context_length_exceeded": completion.context_length_exceeded,
+            }))
+
+            return completion
         except OpenAIError as e:
             cls.log(f"Completions Interface Error - OpenAI API returned an API Error: {e}")
             return Completion.objects.create(response=None, context_length_exceeded=(e.code == 'context_length_exceeded'), message=None,  user=user, use_case=use_case, error_code=e.code, error=True)

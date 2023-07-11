@@ -5,14 +5,17 @@ from coder.models import CoderMessage
 from commands.commands import Recall as RecallCommand
 from commands.commands import Remember as RememberCommand
 from commands.interface import Interface as CommandsInterface
+from app.models import UserPreference
 
 class Custom:
     def __init__(self, coder, config):
         self.coder = coder
         self.prompt = config["prompt"]
         self.functions = config["functions"]
-        self.model = config["model"]
-
+        # self.model = config["model"]
+        user_preference = UserPreference.objects.get(user=coder.user)
+        self.model = 'gpt-4-0613' if user_preference.preferences.get("model") == 'gpt-4-0613' else 'gpt-3.5-turbo-0613'
+        
     def after_create(self):
         content =  self.prompt.replace("<<REQUIREMENTS>>", self.coder.requirements)
 
