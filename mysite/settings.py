@@ -26,9 +26,6 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = 'django-insecure-_i8*uf7xy9hx9tpq4*iu8p_e+-slm^03i&5m_q4k*2gj+$&%_w'
 
-# SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
-
 # TODO only allow localhost if dev environment
 ALLOWED_HOSTS = [
     'pairprogrammer-production.up.railway.app',
@@ -119,6 +116,8 @@ database_url = os.environ.get('DATABASE_URL')
 
 if database_url:
     DATABASES['default'] = dj_database_url.parse(database_url)
+    # SECURITY WARNING: don't run with debug turned on in production!
+    DEBUG = False
 else:
     DATABASES['default'] = {
         'ENGINE': 'django.db.backends.postgresql',
@@ -127,6 +126,7 @@ else:
         'HOST': 'localhost',
         'PORT': '5432',
     }
+    DEBUG = True
 
 
 # Password validation

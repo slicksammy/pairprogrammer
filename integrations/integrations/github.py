@@ -23,11 +23,11 @@ class Github:
             widget=forms.TextInput(attrs={"class": "form-control"}),
         )
 
-        owner = forms.CharField(label='Default Owner (optional)',
+        owner = forms.CharField(label='Owner',
             widget=forms.TextInput(attrs={"class": "form-control"}),
         )
 
-        repo = forms.CharField(label='Default Repo (optional)',
+        repo = forms.CharField(label='Repo',
             widget=forms.TextInput(attrs={"class": "form-control"}),
         )
 
