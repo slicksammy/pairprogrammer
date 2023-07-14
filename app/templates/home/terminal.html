@@ -23,15 +23,25 @@ const commands = [
   { type: "spinner-start" },
   { type: "spinner-stop" },
   { text: "generating model and migration", type: "system-command" },
+  { type: "spinner-start" },
+  { type: "spinner-stop" },
   { text: "runnning migration", type: "system-command" },
+  { type: "spinner-start" },
+  { type: "spinner-stop" },
   { text: "generating controller and views", type: "system-command" },
+  { type: "spinner-start" },
+  { type: "spinner-stop" },
   { text: "adding html to views", type: "system-command" },
+  { type: "spinner-start" },
+  { type: "spinner-stop" },
   { text: "writing to app/views/credit_cards/index.html", type: "system-command" },
+  { type: "spinner-start" },
+  { type: "spinner-stop" },
   { text: "Assistant: I have completed building your dashboard!", type: "assistant-response" },
 ];
 const typingDelay = 50;
 const commandDelay = 1000;
-const runningDelay = 2000; 
+const runningDelay = 1000; 
 let currentCommandIndex = 0;
 let commandProgress = 0;
 
@@ -104,6 +114,6 @@ function endRunningState() {
 }
 
 document.getElementById('spinner').classList.add('hidden');
-typeCommand();
+setTimeout(typeCommand, 2000)
 </script>
 {% endblock %}
