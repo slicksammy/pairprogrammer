@@ -5,7 +5,9 @@
   border: solid 1px #fff;
   border-radius: 5px;
   font-size: 1rem;
-  min-height: 250px;
+  height: 250px;
+  overflow-y: scroll;
+  padding-bottom: 30px;
 }
 
 #content {

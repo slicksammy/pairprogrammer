@@ -2,7 +2,7 @@
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'css/terminal.css' %}">
 {% endblock %}
-<div class="terminal">
+<div class="terminal" id="terminal">
   <div class="top-bar">
     <div class="tab">myproject/</div>
   </div>
@@ -58,7 +58,6 @@ let commandProgress = 0;
 function typeCommand() {
   const output = document.getElementById('output');
   let currentCommand = commands[currentCommandIndex];
-  console.log(currentCommand)
   
   if (currentCommand.type == "spinner-start") {
     document.getElementById('spinner').classList.remove('hidden');
@@ -81,6 +80,8 @@ function typeCommand() {
   // Iterate over all characters
   for(let i = 0; i < currentCommand.text.length; i++) {
     setTimeout(function() {
+      var scrollableDiv = document.getElementById("terminal");
+      scrollableDiv.scrollTop = scrollableDiv.scrollHeight;
       currentSpan.textContent += currentCommand.text[i];
       // Append the whole command span to output
       if (i === 0) {
