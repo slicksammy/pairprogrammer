@@ -7,6 +7,7 @@ class Interface:
     def choosable_commands(cls):
         ignore_these = []
         ignore_these.append('comment') # this command is allowed by default
+        ignore_these.append('github_pull_comment_replies') # this command is only used for beta integration
 
         output = {}
         for command, configuration in Config.COMMANDS.items():
