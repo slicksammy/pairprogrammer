@@ -1,0 +1,174 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en" data-bs-theme="dark">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Pear Programmer</title>
+    <meta
+      name="description"
+      content="Pear Programmer, The first, truly conversational and automated coding assistant."
+    />
+    {% block extra_css %}
+    <link rel="icon" type="image/x-icon" href="{% static 'images/fav.png' %}">
+    <link rel="stylesheet" href="{% static 'css/plugins.css' %}" />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/css/bootstrap.min.css"
+      integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm"
+      crossorigin="anonymous"
+    />
+    <link rel="stylesheet" href="{% static 'css/style.css' %}" />
+    {% endblock %}
+  </head>
+
+  <body>
+    <div class="wrapper d-flex flex-column justify-between"  style="background-color: #11121C;">
+      <!-- Navbar -->
+      <nav
+        class="navbar navbar-expand-lg fixed-top "
+        data-bs-theme="dark"  style="background-color: #11121C;"
+      >
+        <div class="container pl-3 pr-3"  style="background-color: #11121C;">
+          <!-- Logo -->
+          <div class="logo d-flex align-center gap-3"  style="background-color: #11121C;">
+            <img src="{% static 'images/logo.png' %}" style="width: 70px;border-radius: 50%;">
+            <!-- <div class="logotext">
+              Pear <br> <span>Programmer</span>
+
+            </div> -->
+          </div>
+
+          <!-- Navbar toggler button -->
+          <button
+            class="navbar-toggler"
+            type="button"
+            data-bs-toggle="collapse"
+            data-bs-target="#navbarContent"
+            aria-controls="navbarContent"
+            aria-expanded="false"
+            aria-label="Toggle navigation"
+          >
+            <div class="navbar-toggler-icon">
+              <span></span>
+              <span></span>
+              <span></span>
+            </div>
+          </button>
+
+          <!-- Navbar content -->
+          <div class="collapse navbar-collapse" id="navbarContent"  style="background-color: #11121C;">
+            <div
+              class="navbar-content-inner ms-lg-auto d-flex flex-column flex-lg-row align-lg-center gap-4 gap-lg-10 p-2 p-lg-0"
+            >
+              <ul class="navbar-nav gap-lg-2 gap-xl-5">
+                <li class="nav-item">
+                  <a class="nav-link" href="/login">Login</a>
+                </li>
+              </ul>
+              <div class="">
+                <a href="/signup" class="btn btn-outline-primary-dark"
+                  >Get started</a
+                >
+              </div>
+            </div>
+          </div>
+        </div>
+      </nav>
+
+      <main class="flex-grow-1" >
+        <!-- Hero -->
+        <section
+          class="hero-section style-1 overflow-hidden    py-10 py-lg-15"
+          data-bs-theme="dark"
+        >
+          <div class="container">
+            <div class="row justify-center">
+              <div class="col-lg-9">
+                <div class="text-center">
+                  <div class="position-relative z-1">
+                    <h2
+                      class="text-white mb-8"
+                      data-aos="fade-up-sm"
+                      data-aos-delay="100"
+                    >
+                     Your AI <span class="text-primary-dark">Pear Programmer</span>
+
+                      <!-- <span class="fw-bold text-gradient-2 typed-animation"
+                        >coding assistant.</span
+                      > -->
+                    </h2>
+                    <div
+                      class="mb-8"
+                      data-aos="fade-up-sm"
+                      data-aos-delay="200"
+                    >
+                      <p style="color: #9798AA;">
+                        Pear uses OpenAI's GPT-4 to write code, fix production errors, review pull requests, and more!
+                      </p>
+                    </div>
+                  </div>
+                </div>
+                {% include 'home/terminal.html' %}
+                <div class="text-center">
+                      <a
+                      href="/signup"
+                      class="btn btn-lg btn-gradient-1 text-center"
+                      data-aos="fade-up-sm"
+                      data-aos-delay="300"
+                      >Get Started</a
+                  >
+                </div>
+                </div>
+              </div>
+            </div>
+        </div>
+        </section>
+
+        
+
+
+      </main>
+
+
+      <footer class="footer bg-striped pt-10 pt-lg-15"  style="background-color: #11121C;">
+        <div class="container">
+          <div class="row g-10">
+            <div class="col-lg-9 col-xl-8 order-lg-2">
+              <div class="row g-6">
+              </div>
+            </div>
+
+          <div class="text-center py-6 mt-8">
+            <p class="fs-sm mb-0">
+              Copyright &#169;
+              <span class="text-primary-dark">Pear Programmer</span>, All Rights
+              Reserved
+            </p>
+          </div>
+        </div>
+      </footer>
+    </div>
+
+  {% block extra_js %}
+    <script
+    src="https://code.jquery.com/jquery-3.2.1.slim.min.js"
+    integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN"
+    crossorigin="anonymous"
+  ></script>
+  <script
+    src="https://cdn.jsdelivr.net/npm/popper.js@1.12.9/dist/umd/popper.min.js"
+    integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q"
+    crossorigin="anonymous"
+  ></script>
+  <script
+    src="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/js/bootstrap.min.js"
+    integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
+    crossorigin="anonymous"
+  ></script>
+  <script src="{% static 'js/main.js' %}"></script>
+  <script src="{% static 'js/plugins.js' %}"></script>
+  {% endblock extra_js %}
+  </body>
+</html>

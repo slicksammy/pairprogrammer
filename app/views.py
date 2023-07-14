@@ -25,7 +25,7 @@ from coder.interface import Interface as CoderInterface
 
 class HomeView(View):
     def get(self, request):
-        return render(request, 'index.html')
+        return render(request, 'index_2.html')
 
 
 class SignupView(View):

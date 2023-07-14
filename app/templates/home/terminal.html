@@ -1,0 +1,109 @@
+{% load static %}
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/terminal.css' %}">
+{% endblock %}
+<div class="terminal">
+  <div class="top-bar">
+    <div class="tab">myproject/</div>
+  </div>
+  <div id="content">
+    <pre id="output"></pre>
+    <div class="input-line">
+      <div class="spinner" id="spinner"></div>
+      <span class="prompt" id="prompt"></span>
+    </div>
+  </div>
+</div>
+{% block extra_js %}
+<script>
+const commands = [
+  { text: "> pear-on coding start", type: "user-input" },
+  { text: "requirements:", type: "system-prompt" },
+  { text: "build a dashboard where users can create and view credit cards", type: "user-input" },
+  { type: "spinner-start" },
+  { type: "spinner-stop" },
+  { text: "generating model and migration", type: "system-command" },
+  { text: "runnning migration", type: "system-command" },
+  { text: "generating controller and views", type: "system-command" },
+  { text: "adding html to views", type: "system-command" },
+  { text: "writing to app/views/credit_cards/index.html", type: "system-command" },
+  { text: "Assistant: I have completed building your dashboard!", type: "assistant-response" },
+];
+const typingDelay = 50;
+const commandDelay = 1000;
+const runningDelay = 2000; 
+let currentCommandIndex = 0;
+let commandProgress = 0;
+
+function typeCommand() {
+  const output = document.getElementById('output');
+  let currentCommand = commands[currentCommandIndex];
+  console.log(currentCommand)
+  
+  if (currentCommand.type == "spinner-start") {
+    document.getElementById('spinner').classList.remove('hidden');
+    document.getElementById('prompt').textContent = 'running';
+    currentCommandIndex++;
+    setTimeout(function() {
+      typeCommand();
+    }, runningDelay);
+    return
+  } else if (currentCommand.type == "spinner-stop") {
+    document.getElementById('spinner').classList.add('hidden');
+    document.getElementById('prompt').textContent = '';
+    currentCommandIndex++;
+    typeCommand();
+    return
+  }
+      
+  let currentSpan = document.createElement('span');
+  currentSpan.classList.add(currentCommand.type);
+  // Iterate over all characters
+  for(let i = 0; i < currentCommand.text.length; i++) {
+    setTimeout(function() {
+      currentSpan.textContent += currentCommand.text[i];
+      // Append the whole command span to output
+      if (i === 0) {
+        output.appendChild(currentSpan);
+      }
+      // Move to the next command
+      if (i === currentCommand.text.length - 1) {
+        if (currentCommandIndex < commands.length - 1) {
+          output.appendChild(document.createElement('br'));
+          currentCommandIndex++;
+          typeCommand();
+        } else {
+          // output.appendChild(document.createElement('br'));
+          // document.getElementById('spinner').classList.remove('hidden');
+          // document.getElementById('prompt').textContent = 'running';
+          // setTimeout(endRunningState, runningDelay);
+        }
+      }
+    }, typingDelay * i);
+  }
+}
+
+function endRunningState() {
+  document.getElementById('spinner').classList.add('hidden');
+  document.getElementById('prompt').textContent = '';
+  const p = document.createElement('p');
+  p.textContent = '> dashboard has been completed';
+  document.getElementById('output').appendChild(p);
+  const htmlSnippet = `
+  <html>
+  <head>
+      <title>My Dashboard</title>
+  </head>
+  <body>
+      <h1>Welcome to my Dashboard!</h1>
+  </body>
+  </html>`;
+  const pre = document.createElement('pre');
+  pre.textContent = htmlSnippet;
+  document.getElementById('output').appendChild(pre);
+}
+
+document.getElementById('spinner').classList.add('hidden');
+typeCommand();
+</script>
+{% endblock %}

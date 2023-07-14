@@ -1,0 +1,63 @@
+{% load static %}
+<div data-aos="fade-up-sm" data-aos-delay="300">
+    <div class="image-with-shape">
+      <img
+      src="{% static 'images/shapes/blurry-shape-1.svg' %}"
+        alt=""
+        class="shape animate-scale"
+      />
+      <div
+      id="carouselExampleIndicators"
+      class="carousel slide"
+      data-ride="carousel"
+      data-interval="false"
+    >
+    <div class="carousel-video">
+      <!-- Carousel slides -->
+      <div class="carousel-inner">
+        <div class="carousel-item  active carousel-item-first">
+          <h1>Autonomous Coding</h1>
+          <p>Give Pear a detailed set of instructions and let it do the rest</p>
+          <iframe src="https://www.youtube.com/embed/gkpjZU1pCPc?vq=hd720&enablejsapi=1" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+        </div>
+        <div class="carousel-item ">
+          <h1>Fixing Production Bugs</h1>
+          <p>Pear connects to my error monitoring service and fixes a bug with no input</p>
+          <iframe src="https://www.youtube.com/embed/3E-UVACqCTY?vq=hd720&enablejsapi=1" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+        </div>
+        <div class="carousel-item ">
+          <h1>GitHub Integration</h1>
+          <p>Pear will respond to GitHub comments (more coming soon!)</p>
+          <iframe src="https://www.youtube.com/embed/9Lwr9GvTjHc?vq=hd720&enablejsapi=1" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+        </div>
+        <div class="carousel-item  carousel-item-last">
+          <h1>Memory</h1>
+          <p>Pear can remember anything and recall at a later date</p>
+          <iframe src="https://www.youtube.com/embed/1kTIdtrlTVQ?vq=hd720&enablejsapi=1" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+        </div>
+      </div>
+
+      <!-- Carousel controls -->
+      <a
+        class="carousel-control-prev"
+        href="#carouselExampleIndicators"
+        role="button"
+        data-slide="prev"
+      >
+        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+        <span class="sr-only">Previous</span>
+      </a>
+      <a
+        class="carousel-control-next"
+        href="#carouselExampleIndicators"
+        role="button"
+        data-slide="next"
+        id="carousel-next"
+      >
+        <span class="carousel-control-next-icon" aria-hidden="true" style="color: black;"></span>
+        <span class="sr-only">Next</span>
+      </a>
+    </div>
+    </div>
+  </div>
+  </div>

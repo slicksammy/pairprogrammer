@@ -1,0 +1,80 @@
+.terminal {
+  padding: 10px;
+  width: 90%;
+  margin: 50px auto;
+  border: solid 1px #fff;
+  border-radius: 5px;
+  font-size: 1rem;
+  min-height: 250px;
+}
+
+#content {
+  word-wrap: break-word;  /* Internet Explorer 5.5+ */
+}
+
+#output {
+  color: #7FDBFF;
+}
+
+.input-line {
+  display: flex;
+  align-items: center;
+}
+
+.prompt {
+  margin-right: 5px;
+  color: #2ECC40;
+}
+
+.spinner {
+  margin: 0 5px;
+  width: 15px;
+  height: 15px;
+  border: 2px solid #f3f3f3;
+  border-top: 2px solid #3498db;
+  border-radius: 50%;
+  animation: spin 2s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.hidden {
+  display: none;
+}
+
+.user-input {
+  color: #ffffff;
+  white-space: initial;
+}
+
+.system-prompt {
+  color: #7FDBFF;
+  white-space: initial;
+}
+
+.system-command {
+  color: #808080;
+  white-space: initial;
+}
+
+.assistant-response {
+  color: #7FDBFF;
+  white-space: initial;
+}
+
+.top-bar {
+  background-color: #333;
+  padding: 5px;
+  border-bottom: solid 1px #fff;
+}
+
+.tab {
+  display: inline-block;
+  padding: 5px 10px;
+  background-color: #555;
+  color: #fff;
+  border-radius: 5px 5px 0 0;
+}
