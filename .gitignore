@@ -1,4 +1,4 @@
 __pycache__/
 .pear*
 /static/
-.DS_Store
+**/.DS_Store
