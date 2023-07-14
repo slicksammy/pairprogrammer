@@ -4,7 +4,14 @@
 {% endblock %}
 <div class="terminal" id="terminal">
   <div class="top-bar">
-    <div class="tab">myproject/</div>
+      <div class="mac-icons">
+        <div class="mac-icon green"></div>
+        <div class="mac-icon yellow"></div>
+        <div class="mac-icon red"></div>
+      </div>
+      <div class="tab-container">
+        <div class="tab text-align-center">myproject/</div>
+      </div>
   </div>
   <div id="content">
     <pre id="output"></pre>
@@ -80,7 +87,7 @@ function typeCommand() {
   // Iterate over all characters
   for(let i = 0; i < currentCommand.text.length; i++) {
     setTimeout(function() {
-      var scrollableDiv = document.getElementById("terminal");
+      var scrollableDiv = document.getElementById("content");
       scrollableDiv.scrollTop = scrollableDiv.scrollHeight;
       currentSpan.textContent += currentCommand.text[i];
       // Append the whole command span to output
