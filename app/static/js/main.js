@@ -13325,84 +13325,84 @@ $(document).ready(function () {
   });
 });
 
-var carousel = document.getElementById("carouselExampleIndicators");
+// var carousel = document.getElementById("carouselExampleIndicators");
 
-var prevButton = carousel.querySelector(".carousel-control-prev");
-var nextButton = carousel.querySelector(".carousel-control-next");
+// var prevButton = carousel.querySelector(".carousel-control-prev");
+// var nextButton = carousel.querySelector(".carousel-control-next");
 
-prevButton.addEventListener("click", stopCarouselIfFirstSlide);
-nextButton.addEventListener("click", stopCarouselIfLastSlide);
+// prevButton.addEventListener("click", stopCarouselIfFirstSlide);
+// nextButton.addEventListener("click", stopCarouselIfLastSlide);
 
-function isFirstSlide() {
-  var activeItem = carousel.querySelector(".carousel-item.active");
-  return activeItem.classList.contains("carousel-item-first");
-}
+// function isFirstSlide() {
+//   var activeItem = carousel.querySelector(".carousel-item.active");
+//   return activeItem.classList.contains("carousel-item-first");
+// }
 
-function isLastSlide() {
-  var activeItem = carousel.querySelector(".carousel-item.active");
-  return activeItem.classList.contains("carousel-item-last");
-}
+// function isLastSlide() {
+//   var activeItem = carousel.querySelector(".carousel-item.active");
+//   return activeItem.classList.contains("carousel-item-last");
+// }
 
-function stopCarouselIfFirstSlide(event) {
-  if (isFirstSlide()) {
-    event.preventDefault();
-    event.stopPropagation();
-    prevButton.classList.add("disabled");
-  } else {
-    // nextButton.classList.remove('disabled');
-  }
-}
+// function stopCarouselIfFirstSlide(event) {
+//   if (isFirstSlide()) {
+//     event.preventDefault();
+//     event.stopPropagation();
+//     prevButton.classList.add("disabled");
+//   } else {
+//     // nextButton.classList.remove('disabled');
+//   }
+// }
 
-function stopCarouselIfLastSlide(event) {
-  if (isLastSlide()) {
-    event.preventDefault();
-    event.stopPropagation();
-    // nextButton.classList.add('disabled');
-  } else {
-    // prevButton.classList.remove('disabled');
-  }
-}
+// function stopCarouselIfLastSlide(event) {
+//   if (isLastSlide()) {
+//     event.preventDefault();
+//     event.stopPropagation();
+//     // nextButton.classList.add('disabled');
+//   } else {
+//     // prevButton.classList.remove('disabled');
+//   }
+// }
 
-$(".carousel").carousel();
+// $(".carousel").carousel();
 
-setInterval(() => {
-  var prevButton = carousel.querySelector(".carousel-control-prev");
-  var nextButton = carousel.querySelector(".carousel-control-next");
+// setInterval(() => {
+//   var prevButton = carousel.querySelector(".carousel-control-prev");
+//   var nextButton = carousel.querySelector(".carousel-control-next");
 
-  var carouselItems = document.getElementsByClassName("carousel-item");
+//   var carouselItems = document.getElementsByClassName("carousel-item");
 
-  var activePosition = -1;
+//   var activePosition = -1;
 
-  for (var i = 0; i < carouselItems.length; i++) {
-    if (carouselItems[i].classList.contains("active")) {
-      activePosition = i + 1;
-      break;
-    }
-  }
+//   for (var i = 0; i < carouselItems.length; i++) {
+//     if (carouselItems[i].classList.contains("active")) {
+//       activePosition = i + 1;
+//       break;
+//     }
+//   }
 
-  if (activePosition == 1) {
-    prevButton.classList.add("disabled");
-  } else {
-    prevButton.classList.remove("disabled");
-  }
+//   if (activePosition == 1) {
+//     prevButton.classList.add("disabled");
+//   } else {
+//     prevButton.classList.remove("disabled");
+//   }
 
-  var carouselItems = document.getElementsByClassName("carousel-item");
+//   var carouselItems = document.getElementsByClassName("carousel-item");
 
-  var activePosition = -1;
+//   var activePosition = -1;
 
-  for (var i = 0; i < carouselItems.length; i++) {
-    if (carouselItems[i].classList.contains("active")) {
-      activePosition = i + 1;
-      break;
-    }
-  }
+//   for (var i = 0; i < carouselItems.length; i++) {
+//     if (carouselItems[i].classList.contains("active")) {
+//       activePosition = i + 1;
+//       break;
+//     }
+//   }
 
-  var isLastPosition = activePosition === carouselItems.length;
+//   var isLastPosition = activePosition === carouselItems.length;
 
-  if (isLastPosition) {
-    nextButton.classList.add("disabled");
-  } else {
-    nextButton.classList.remove("disabled");
-  }
+//   if (isLastPosition) {
+//     nextButton.classList.add("disabled");
+//   } else {
+//     nextButton.classList.remove("disabled");
+//   }
 
-}, 100);
+// }, 100);
