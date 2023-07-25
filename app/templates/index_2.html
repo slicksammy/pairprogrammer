@@ -20,6 +20,7 @@
       crossorigin="anonymous"
     />
     <link rel="stylesheet" href="{% static 'css/style.css' %}" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
     {% endblock %}
   </head>
 
@@ -105,7 +106,7 @@
                       data-aos-delay="200"
                     >
                       <p style="color: #9798AA;">
-                        Pear uses OpenAI's GPT-4 to write code, fix production errors, review pull requests, and more!
+                        Write functional requirements and let Pear do the work.
                       </p>
                     </div>
                   </div>
@@ -123,6 +124,9 @@
                 </div>
               </div>
             </div>
+        </section>
+        <section>
+          {% include 'home/lifecycle.html' %}
         </section>
         <section>
           {% include 'home/faq.html' %}
