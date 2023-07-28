@@ -1,16 +1,16 @@
 {% extends "dashboard_layout.html" %}
 {% block content %}
     <div class="container">
-        <h2 class="text-center">Create a New Recipe</h2>
+        <h2 class="text-center">Create a New Agent</h2>
         <form method="post">
             {% csrf_token %}
             <div class="mb-3">
-                <label>You will run <code>pear-on recipe RECIPE_NAME</code></label>
-                <input type="text" name="{{ form.recipe.name }}" value="{{ form.recipe.value|default:'' }}" maxlength="30" class="form-control" required placeholder="Recipe Name" {% if form.recipe.field.widget.attrs.readonly %}readonly{% endif %}/>
+                <label>You will run <code>pear-on agent AGENT_NAME</code></label>
+                <input type="text" name="{{ form.recipe.name }}" value="{{ form.recipe.value|default:'' }}" maxlength="30" class="form-control" required placeholder="Agent Name" {% if form.recipe.field.widget.attrs.readonly %}readonly{% endif %}/>
             </div>
-            <span>When you run your recipe you will have the option to input "requirements"</span>
+            <span>When you run your agent you will have the option to input "requirements"</span>
             <br>
-            <code>pear-on recipe RECIPE_NAME</code>
+            <code>pear-on agent AGENT_NAME</code>
             <br>
             <code>requirements: </code>
             <br>
@@ -18,7 +18,7 @@
             <div class="mb-3">
                 <textarea rows=10 type="text" name="{{ form.prompt.name }}" class="form-control" required placeholder="Example:&#10Review the file in <<REQUIREMENTS>>&#10Information about my app <<CONTEXT>>" >{{ form.prompt.value|default:'' }}</textarea>
             </div>
-            <label>Select the actions you want Pear to take</label>
+            <label>Select the actions you want your agent to take</label>
             {{ form.functions }}
             <button class="btn btn-primary" type="submit">Submit</button>
         </form>
