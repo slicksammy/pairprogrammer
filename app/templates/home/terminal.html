@@ -2,29 +2,32 @@
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'css/terminal.css' %}">
 {% endblock %}
-<div class="terminal" id="terminal">
-  <div class="top-bar">
-      <div class="mac-icons">
-        <div class="mac-icon green"></div>
-        <div class="mac-icon yellow"></div>
-        <div class="mac-icon red"></div>
+<!-- <div class="container py-5"> -->
+  <!-- <h2 class="mb-5 text-center">Coding Agent Example</h2> -->
+  <div class="terminal" id="terminal">
+    <div class="top-bar">
+        <div class="mac-icons">
+          <div class="mac-icon green"></div>
+          <div class="mac-icon yellow"></div>
+          <div class="mac-icon red"></div>
+        </div>
+        <div class="tab-container">
+          <div class="tab text-align-center">myproject/</div>
+        </div>
+    </div>
+    <div id="content">
+      <pre id="output"></pre>
+      <div class="input-line">
+        <div class="spinner" id="spinner"></div>
+        <span class="prompt" id="prompt"></span>
       </div>
-      <div class="tab-container">
-        <div class="tab text-align-center">myproject/</div>
-      </div>
-  </div>
-  <div id="content">
-    <pre id="output"></pre>
-    <div class="input-line">
-      <div class="spinner" id="spinner"></div>
-      <span class="prompt" id="prompt"></span>
     </div>
   </div>
-</div>
+<!-- </div> -->
 {% block extra_js %}
 <script>
 const commands = [
-  { text: "> pear-on coding start", type: "user-input" },
+  { text: "> pear-on agent dashboard-builder", type: "user-input" },
   { text: "requirements:", type: "system-prompt" },
   { text: "build a dashboard where users can create and view credit cards. we need to add the model, controller, and views.", type: "user-input" },
   { type: "spinner-start" },
