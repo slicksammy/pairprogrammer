@@ -262,9 +262,6 @@ class IntegrationsFormView(LoginRequiredMixin, View):
     login_url = '/login'
     
     def get(self, request, integration):
-        if IntegrationsInterface.is_oauth(integration):
-            return redirect(IntegrationsInterface.oauth_url(integration))
-        else:
-            form = IntegrationsInterface.form(request.user, integration)
-            return render(request, 'integrations_new.html', {'form': form, "integration": integration})
+        form = IntegrationsInterface.form(request.user, integration)
+        return render(request, 'integrations_new.html', {'form': form, "integration": integration})
 
