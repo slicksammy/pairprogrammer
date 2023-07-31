@@ -68,7 +68,8 @@ let commandProgress = 0;
 function typeCommand() {
   const output = document.getElementById('output');
   let currentCommand = commands[currentCommandIndex];
-  
+  var scrollableDiv = document.getElementById("content");
+  scrollableDiv.scrollTop = scrollableDiv.scrollHeight;
   if (currentCommand.type == "spinner-start") {
     document.getElementById('spinner').classList.remove('hidden');
     document.getElementById('prompt').textContent = 'running';
@@ -90,8 +91,6 @@ function typeCommand() {
   // Iterate over all characters
   for(let i = 0; i < currentCommand.text.length; i++) {
     setTimeout(function() {
-      var scrollableDiv = document.getElementById("content");
-      scrollableDiv.scrollTop = scrollableDiv.scrollHeight;
       currentSpan.textContent += currentCommand.text[i];
       // Append the whole command span to output
       if (i === 0) {

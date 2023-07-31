@@ -34,13 +34,14 @@ class SignupView(View):
         return render(request, 'signup.html', {'form': form})
 
     def post(self, request):
-        signup_code = request.POST.get('signup_code')
+        # signup_code = request.POST.get('signup_code')
+        
+        # if Interface.signup_code_exists(signup_code) is False:
+        #     messages.error(request, 'Invalid signup code')
+        #     return render(request, 'signup.html', {'form': form})
+        
         form = CustomUserCreationForm(request.POST)
-        
-        if Interface.signup_code_exists(signup_code) is False:
-            messages.error(request, 'Invalid signup code')
-            return render(request, 'signup.html', {'form': form})
-        
+
         if form.is_valid():
             user = form.save()
             UserPreference.objects.create(user=user, preferences={ "model": "gpt-4-0613" })
@@ -175,7 +176,7 @@ class CoderRecipeFormView(LoginRequiredMixin, View):
                 messages.error(request, "There was an issue creating your recipe. It could be that your recipe name already exists.")
                 return render(request, 'coder_recipes_new.html', {'form': form})
 
-            messages.success(request, 'Recipe added successfully')
+            messages.success(request, 'Agent deployed successfully')
             return redirect('/dashboard/recipes')
         else:
             error_message = ''
@@ -208,10 +209,10 @@ class CoderRecipeEditFormView(LoginRequiredMixin, View):
                 form.save(user=request.user)
             except Exception as e:
                 breakpoint()
-                messages.error(request, "There was an issue updating your recipe. It could be that your recipe name already exists.")
+                messages.error(request, "There was an issue updating your agent. It could be that your agent name already exists.")
                 return render(request, 'coder_recipes_new.html', {'form': form})
 
-            messages.success(request, 'Recipe saved successfully')
+            messages.success(request, 'Agent deployed successfully')
             return render(request, 'coder_recipes_new.html', {'form': form})
         else:
             error_message = ''
@@ -261,6 +262,9 @@ class IntegrationsFormView(LoginRequiredMixin, View):
     login_url = '/login'
     
     def get(self, request, integration):
-        form = IntegrationsInterface.form(request.user, integration)
-        return render(request, 'integrations_new.html', {'form': form, "integration": integration})
+        if IntegrationsInterface.is_oauth(integration):
+            return redirect(IntegrationsInterface.oauth_url(integration))
+        else:
+            form = IntegrationsInterface.form(request.user, integration)
+            return render(request, 'integrations_new.html', {'form': form, "integration": integration})
 
