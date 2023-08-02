@@ -32,7 +32,7 @@ ALLOWED_HOSTS = [
     'localhost',
     'www.pearprogrammer.dev',
     'pairprogrammer-staging.up.railway.app',
-    '8ed8-24-219-59-41.ngrok-free.app'
+    'd616-24-219-59-41.ngrok-free.app'
 ]
 
 # TODO only allow localhost if dev environment
@@ -128,6 +128,10 @@ else:
     }
     DEBUG = True
 
+INTERNAL_IPS = (
+    '127.0.0.1',
+    '192.168.1.23',
+)
 
 # Password validation
 # https://docs.djangoproject.com/en/4.1/ref/settings/#auth-password-validators
