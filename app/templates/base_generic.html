@@ -18,6 +18,16 @@
     pointer-events: auto;
 }
 </style>
+{% if debug %}
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-669B520B0M"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-669B520B0M');
+</script>
+{% endif %}
 </head>
 <body>
 <!-- Messages -->
