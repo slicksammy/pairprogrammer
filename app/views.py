@@ -21,11 +21,15 @@ from rest_framework.views import APIView
 from .interface import Interface
 from integrations.interface import Interface as IntegrationsInterface
 from coder.interface import Interface as CoderInterface
+import yaml
 
 
 class HomeView(View):
     def get(self, request):
-        return render(request, 'index_3.html')
+        faq_path = os.path.join(settings.BASE_DIR, "app/templates/home/faq.yml")
+        with open(faq_path, 'r') as file:
+            faq = yaml.safe_load(file)
+        return render(request, 'index_3.html', { "faq": faq})
 
 
 class SignupView(View):

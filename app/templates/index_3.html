@@ -122,16 +122,23 @@
                     </div>
                   </div>
                 </div>
-                {% include 'home/terminal.html' %}
+                {% include 'home/terminal.html' with faq=faq %}
                 <!-- <h5 class="text-center">Start working smarter in 5 minutes</h5> -->
                 <div class="text-center">
                       <a
                       href="/signup"
-                      class="btn btn-lg btn-gradient-1 text-center"
+                      class="btn btn-lg btn-primary text-center"
                       data-aos="fade-up-sm"
                       data-aos-delay="300"
-                      >Try for Free</a
-                  >
+                      >Try for Free</a>
+                      <a
+                      href="https://calendly.com/slicksammy/pear-demo"
+                      target="_blank"
+                      class="btn btn-lg btn-secondary text-center"
+                      style="background: #6c757d; color: #fff;"
+                      data-aos="fade-up-sm"
+                      data-aos-delay="300"
+                      >Schedule A Demo</a>
                 </div>
                 </div>
               </div>
@@ -144,10 +151,10 @@
           {% include 'home/integrations.html' %}
         </section>
         <section>
-          {% include 'home/faq.html' %}
+          {% include 'home/documentation.html' %}
         </section>
         <section>
-          {% include 'home/documentation.html' %}
+          {% include 'home/faq.html' %}
         </section>
       </main>
     </div>

@@ -1,51 +1,21 @@
 <div class="container py-5">
     <h2 class="mb-5 text-center">FAQ</h2>
-
     <div id="faq" class="accordion">
-    <div class="card">
-        <div class="card-header" id="headingOne">
-            <h2 class="mb-0">
-            <button class="btn btn-link btn-block text-left" style="white-space: initial;" type="button" data-toggle="collapse" data-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
-                As a business owner, why do I care about Pear?
-            </button>
-            </h2>
-        </div>
-        <div id="collapseOne" class="collapse" aria-labelledby="headingOne" data-parent="#faq">
-            <div class="card-body">
-                Every business owner wants to ship more code but has limited resources. Pear automates a lot of the busy work software engineers do, allowing them to focus on solving problems and shipping more code.
-            </div>
-        </div>
-    </div>
-    <div class="card">
-        <div class="card-header" id="headingOne">
-            <h2 class="mb-0">
-            <button class="btn btn-link btn-block text-left" style="white-space: initial;" type="button" data-toggle="collapse" data-target="#collapseTwo" aria-expanded="true" aria-controls="collapseOne">
-                As a software engineer, why should I use Pear?
-            </button>
-            </h2>
-        </div>
-        <div id="collapseTwo" class="collapse" aria-labelledby="headingOne" data-parent="#faq">
-            <div class="card-body">
-                Let's be honest, there are things we enjoy doing and things we don't. Pear will do all of the boring stuff and let you focus on the big picture.
-            </div>
-        </div>
-    </div>
+    {% for q_a in faq %}
       <div class="card">
-        <div class="card-header" id="headingOne">
-          <h2 class="mb-0">
-            <button class="btn btn-link btn-block text-left" style="white-space: initial;" type="button" data-toggle="collapse" data-target="#collapseThree" aria-expanded="true" aria-controls="collapseOne">
-              What does Pear do that other copilots don't?
-            </button>
-          </h2>
-        </div>
-        <div id="collapseThree" class="collapse" aria-labelledby="headingOne" data-parent="#faq">
-          <div class="card-body">
-            Unlike other copilots that suggest lines or functions, Pear builds entire features from start to finish. Pear also easily integrates with <strong>any</strong> api to further automate your workflows.
-            <br> 
-            <br>
-            Workflows include fixing production bugs, reviewing pull requests, writing tests, and monitoring infrastructure. Pear can do all of these.
+          <div class="card-header" id="headingOne">
+              <h2 class="mb-0">
+              <button class="btn btn-link btn-block text-left" style="white-space: initial;" type="button" data-toggle="collapse" data-target="#faq-{{ forloop.counter }}" aria-expanded="true" aria-controls="collapseOne">
+                  {{ q_a.question }}
+              </button>
+              </h2>
           </div>
-        </div>
+          <div id="faq-{{ forloop.counter }}" class="collapse" aria-labelledby="headingOne" data-parent="#faq">
+              <div class="card-body">
+                {{ q_a.answer }}
+              </div>
+          </div>
       </div>
+    {% endfor %}
     </div>
   </div>
